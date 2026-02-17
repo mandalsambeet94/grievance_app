@@ -1,0 +1,34 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.GrievanceMS" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/sky</item>
+        <item name="colorPrimaryVariant">@color/sky</item>
+        <item name="colorOnPrimary">@color/sky</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/sky</item>
+        <item name="colorSecondaryVariant">@color/sky</item>
+        <item name="colorOnSecondary">@color/sky</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- Navigation bar icons = dark -->
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.GrievanceMS.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/sky</item>
+        <item name="colorPrimaryVariant">@color/sky</item>
+        <item name="colorOnPrimary">@color/sky</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.GrievanceMS.AppBarOverlay" parent="ThemeOverlay.AppCompat.Light">
+    </style>
+
+    <style name="Theme.GrievanceMS.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+    </style>
+</resources>

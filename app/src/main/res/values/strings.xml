@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">GrievanceMS</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+
+    <!--API URLs-->
+    <!--<string name="main_url">http://192.168.137.1:8080/api/</string>-->
+    <string name="main_url">https://f1i32xtwg9.execute-api.ap-south-1.amazonaws.com/prod/</string>
+    <string name="login_url">auth/login</string>
+    <string name="dashboard_url">dashboard/agent</string>
+    <string name="submit_grievance_url">grievances</string>
+    <string name="pre_signed_url">attachments/presigned-urls</string>
+    <string name="confirm_url">attachments/confirm?uploadId=</string>
+</resources>
