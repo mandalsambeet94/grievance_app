@@ -132,7 +132,13 @@ class OfflineDetailsActivity: AppCompatActivity() {
 
         binding.btnSubmit.setOnClickListener{
             if(Util.isNetworkAvailable(this@OfflineDetailsActivity)){
-                saveGrievanceData(offlineData)
+                val gId = offlineData.grievanceID
+                if(!gId.isNullOrBlank()){
+                    syncPreSignedUrl(gId)
+                }else{
+                    saveGrievanceData(offlineData)
+                }
+
             }
         }
     }

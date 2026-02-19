@@ -18,8 +18,8 @@
         android:layout_height="70dp"
         android:background="@drawable/circle_bg_sky"
         android:contentDescription="@string/nav_header_desc"
-        android:padding="20dp"
-        app:srcCompat="@drawable/grievance_icon" />
+        android:padding="15dp"
+        app:srcCompat="@drawable/grievance_icon_new" />
 
     <TextView
         android:id="@+id/tvAgentName"

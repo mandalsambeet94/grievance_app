@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.isNotEmpty
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.AuthFailureError
@@ -78,70 +80,23 @@ class CreateGrievanceActivity: AppCompatActivity() {
         }
         val grievanceTypes = listOf("ATHGARH", "TIGIRIA", "Tangi Chowdwar", "Athagarh NAC")
         val wordNoTypes = listOf("1", "2", "3", "4","5", "6", "7", "8","9", "10", "11", "12","13", "14", "15", "16","17", "18", "19", "20","21", "22", "23", "24","25", "26", "27", "28","29", "30")
+        val wordNoTypesNac = listOf("1", "2", "3", "4","5", "6", "7", "8","9", "10", "11", "12","13", "14", "15", "16","17", "18")
         val gpTypeMap = mapOf(
             "ATHGARH" to listOf("Dhaipur", "Radhagovindpur", "Samsarpur", "Sathilo","Ichhapur","Anantpur","Dhurusia","Radhakishorepur","Kumarpur","Joranda","Rajanagar","Rajanagar","Bentapada","Tarading","Kuspangi","Oranda","Mancheswar","Kandarpur","Mahakalbasta","Ghantikhal","Dorada","Bhogara","Kulailo","Megha","Katakiasahi","Badabhuin","Jenapadadesh","Khuntakata","Radhakrushnapur","Kandarei","Khuntuni","Dalabhaga","Gurudijhatia","Gobara","Chhagaon"),
             "TIGIRIA" to listOf("Achalakot", "Badanauput","Bhiruda","Baliput","Hatamala","Gadadharpur","Somapada","Bhogoda","Panchagaon","Nuapatana","Puruna tigiria","Jamadeipur","Bindhanima","Nizigarh"),
             "Tangi Chowdwar" to listOf("Kakhadi","Shankarpur","Mahisalanda","Mangarajpur","Badasamntrapur","Brahmapur"),
             "Athagarh NAC" to listOf("")
         )
-        val villagesNac = listOf(
-            "Hemamalapur",
-            "Guhalapadia",
-            "Santasahi",
-            "Talasahi",
-            "Tanlasahi",
-            "Other",
-            "Gadashi",
-            "Dhobasahi",
-            "Pathanasahi",
-            "Keutasahi",
-            "Muslim basti",
-            "Damasahi",
-            "Harijanasahi",
-            "Rasarashikpur",
-            "Sasana",
-            "Forest colony",
-            "Upparsahi",
-            "Kalubasti",
-            "Uttarachandisahi",
-            "Bautisahi",
-            "Tanlasahi",
-            "Puruna Busstand",
-            "Birakishorepur",
-            "Bagetisahi",
-            "Harisaranapur",
-            "satichourasahi",
-            "Gaudasahi",
-            "Bramhanasasana",
-            "Hadisahi",
-            "Badheitota",
-            "Gudiasahi",
-            "Jagannath sahi",
-            "telisahi",
-            "bhagabatasahi",
-            "Doulamandapsahi",
-            "Panasahi",
-            "Keutasahi",
-            "Sadarsahi",
-            "Doulamandapsahi",
-            "Jharana chaka",
-            "Sabar sahi",
-            "Medical colony",
-            "Housing board",
-            "Banikanthanagar",
-            "Gandhi marg",
-            "Kangada sahi",
-            "Maitri nagar",
-            "Hatasahi",
-            "Kantol bazar",
-            "Bazarsahi",
-            "Keutasahi",
-            "Sabarasahi",
-            "Matiasahi",
-            "Chandiroad sahi",
-            "Satichourasahi",
-            "Ashok nagar",
-            "Rajabati nagar"
+        val villagesNacMap = mapOf(
+            "1" to listOf("Guhalapadia",
+                "Santasahi",
+                "Talasahi",
+                "Tanlasahi",
+                "Other"),
+            "2" to listOf("Gadashi",
+                "Dhobasahi",
+                "Pathanasahi",
+                "Keutasahi")
         )
         val villageTypeMap = mapOf(
             "Dhaipur" to listOf("Dhaipur", "Gadadhapur", "Somanathpur", "Radhaprasannapur"),
@@ -542,15 +497,22 @@ class CreateGrievanceActivity: AppCompatActivity() {
         binding.spinnerBlock.setOnItemClickListener { parent, view, position, id ->
             blockData = parent.getItemAtPosition(position).toString()
             println("spinnerBlock $blockData")
+            binding.tilGrievanceType.error = null
             binding.spinnerGP.setText("", false)
             if (blockData == "Athagarh NAC") {
                 // Disable subtype completely
                 //binding.titleGP.visibility = View.GONE
+                binding.llNac.visibility = View.VISIBLE
+                binding.llCommon.visibility = View.GONE
                 binding.spinnerGP.isEnabled = false
-                val adapterNac = ArrayAdapter(this, R.layout.simple_list_item_1, villagesNac)
-                binding.spinnerVS.setAdapter(adapterNac)
+                val adapterWard = ArrayAdapter(this, R.layout.simple_list_item_1, wordNoTypesNac)
+                binding.spinnerWNNac.setAdapter(adapterWard)
+                /*val adapterNac = ArrayAdapter(this, R.layout.simple_list_item_1, villagesNac)
+                binding.spinnerVS.setAdapter(adapterNac)*/
             }else{
                 // Load related values
+                binding.llNac.visibility = View.GONE
+                binding.llCommon.visibility = View.VISIBLE
                 val subGps = gpTypeMap[blockData].orEmpty()
                 if (subGps.isNotEmpty()) {
                     //binding.titleGP.visibility = View.VISIBLE
@@ -567,7 +529,29 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     binding.spinnerGP.isEnabled = false
                 }
             }
+        }
 
+        binding.spinnerWNNac.setOnClickListener {
+            binding.spinnerWNNac.showDropDown()
+        }
+        binding.spinnerWNNac.setOnItemClickListener { parent, view, position, id ->
+            wardData = parent.getItemAtPosition(position).toString()
+            println("spinnerWN $wardData")
+            binding.titleWNNac.error = null
+            binding.spinnerVS.setText("", false)
+            val subVSs = villagesNacMap[wardData].orEmpty()
+            if (subVSs.isNotEmpty()) {
+                //binding.titleGP.visibility = View.VISIBLE
+                val subAdapter = ArrayAdapter(
+                    this,
+                    android.R.layout.simple_list_item_1,
+                    subVSs
+                )
+                binding.spinnerVSNAc.setAdapter(subAdapter)
+            } else {
+                //binding.titleGP.visibility = View.GONE
+                binding.spinnerVS.isEnabled = false
+            }
         }
 
         binding.spinnerGP.setOnClickListener {
@@ -577,10 +561,14 @@ class CreateGrievanceActivity: AppCompatActivity() {
         binding.spinnerVS.setOnClickListener {
             binding.spinnerVS.showDropDown()
         }
+        binding.spinnerVSNAc.setOnClickListener {
+            binding.spinnerVSNAc.showDropDown()
+        }
 
         binding.spinnerGP.setOnItemClickListener { parent, view, position, id ->
             gpData = parent.getItemAtPosition(position).toString()
             println("spinnerGP $gpData")
+            binding.titleGP.error = null
             binding.spinnerVS.setText("", false)
             val subVSs = villageTypeMap[gpData].orEmpty()
             if (subVSs.isNotEmpty()) {
@@ -602,6 +590,13 @@ class CreateGrievanceActivity: AppCompatActivity() {
         binding.spinnerVS.setOnItemClickListener { parent, view, position, id ->
             villageData = parent.getItemAtPosition(position).toString()
             println("spinnerVS $villageData")
+            binding.titleVS.error = null
+        }
+
+        binding.spinnerVSNAc.setOnItemClickListener { parent, view, position, id ->
+            villageData = parent.getItemAtPosition(position).toString()
+            println("spinnerVSNac $villageData")
+            binding.titleVSNAc.error = null
         }
 
         binding.addTopic.setOnClickListener {
@@ -660,33 +655,169 @@ class CreateGrievanceActivity: AppCompatActivity() {
         setupRecyclerView()
         setupAddPhotoClick()
 
-        binding.btnSubmit.setOnClickListener{
+        /*binding.btnSubmit.setOnClickListener{
             val nameD = binding.etName.text.toString().trim()
             val fatherNameD = binding.etFather.text.toString().trim()
             val contactD = binding.etContact.text.toString().trim()
             val greivanceM = binding.etGrievanceMatter.text.toString().trim()
             if(blockData.isBlank()){
-                showAlert("Alert!", "Please select block")
+                //showAlert("Alert!", "Please select block")
+                binding.tilGrievanceType.error = "Block is required"
+                binding.tilGrievanceType.requestFocus()
             }else if(blockData != "Athagarh NAC" && gpData.isBlank()){
-                showAlert("Alert!", "Please select gp")
+                binding.titleGP.error = "GP is required"
+                binding.titleGP.requestFocus()
+                //showAlert("Alert!", "Please select gp")
             }else if(villageData.isBlank()){
-                showAlert("Alert!", "Please select village/sahi")
+                if(blockData == "Athagarh NAC"){
+                    binding.titleVSNAc.error = "Village/Sahi is required"
+                    binding.titleVSNAc.requestFocus()
+                }else{
+                    binding.titleVS.error = "Village/Sahi is required"
+                    binding.titleVS.requestFocus()
+                }
+                //showAlert("Alert!", "Please select village/sahi")
             }else if(wardData.isBlank()){
-                showAlert("Alert!", "Please select ward number")
+                if(blockData == "Athagarh NAC"){
+                    binding.titleWNNac.error = "Ward No is required"
+                    binding.titleWNNac.requestFocus()
+                }else{
+                    binding.titleWN.error = "Village/Sahi is required"
+                    binding.titleWN.requestFocus()
+                }
+                //showAlert("Alert!", "Please select ward number")
             }else if(nameD.isBlank()){
-                showAlert("Alert!", "Please enter name")
+                binding.titleName.error = "Citizen Name is required"
+                binding.titleName.requestFocus()
+                //showAlert("Alert!", "Please enter name")
             }else if(fatherNameD.isBlank()){
-                showAlert("Alert!", "Please enter father/spouse name")
+                binding.titleFS.error = "Father/Spouse Name is required"
+                binding.titleFS.requestFocus()
+                //showAlert("Alert!", "Please enter father/spouse name")
             }else if(contactD.isBlank()){
-                showAlert("Alert!", "Please enter contact")
+                binding.titleContact.error = "Contact is required"
+                binding.titleContact.requestFocus()
+                //showAlert("Alert!", "Please enter contact")
             }else if(contactD.length<10){
-                showAlert("Alert!", "Please enter valid contact")
+                binding.titleContact.error = "Contact is not valid"
+                binding.titleContact.requestFocus()
+                //showAlert("Alert!", "Please enter valid contact")
             }else if(greivanceM.isBlank()){
-                showAlert("Alert!", "Please enter grievance matter")
+                binding.titleGrievance.error = "Grievance Matter is required"
+                binding.titleGrievance.requestFocus()
+                //showAlert("Alert!", "Please enter grievance matter")
             }else{
                 if(Util.isNetworkAvailable(this@CreateGrievanceActivity)){
                     saveGrievanceData()
                 }else{
+                    saveOfflineData("offline")
+                }
+            }
+        }*/
+        binding.etName.addTextChangedListener {
+            if (!it.isNullOrBlank()) {
+                binding.titleName.error = null
+            }
+        }
+        binding.etFather.addTextChangedListener {
+            if (!it.isNullOrBlank()) {
+                binding.titleFS.error = null
+            }
+        }
+        binding.etContact.addTextChangedListener {
+            if (!it.isNullOrBlank()) {
+                binding.titleContact.error = null
+            }
+        }
+        binding.etGrievanceMatter.addTextChangedListener {
+            if (!it.isNullOrBlank()) {
+                binding.titleGrievance.error = null
+            }
+        }
+        binding.btnSubmit.setOnClickListener {
+            val nameD = binding.etName.text.toString().trim()
+            val fatherNameD = binding.etFather.text.toString().trim()
+            val contactD = binding.etContact.text.toString().trim()
+            val greivanceM = binding.etGrievanceMatter.text.toString().trim()
+
+            var isValid = true
+
+            // Clear previous errors
+            binding.tilGrievanceType.error = null
+            binding.titleGP.error = null
+            binding.titleVS.error = null
+            binding.titleVSNAc.error = null
+            binding.titleWN.error = null
+            binding.titleWNNac.error = null
+            binding.titleName.error = null
+            binding.titleFS.error = null
+            binding.titleContact.error = null
+            binding.titleGrievance.error = null
+
+            // Block validation
+            if (blockData.isBlank()) {
+                binding.tilGrievanceType.error = "Block is required"
+                isValid = false
+            }
+
+            // GP validation
+            if (blockData != "Athagarh NAC" && gpData.isBlank()) {
+                binding.titleGP.error = "GP is required"
+                isValid = false
+            }
+
+            // Village validation
+            if (villageData.isBlank()) {
+                if (blockData == "Athagarh NAC") {
+                    binding.titleVSNAc.error = "Village/Sahi is required"
+                } else {
+                    binding.titleVS.error = "Village/Sahi is required"
+                }
+                isValid = false
+            }
+
+            // Ward validation
+            if (wardData.isBlank()) {
+                if (blockData == "Athagarh NAC") {
+                    binding.titleWNNac.error = "Ward No is required"
+                } else {
+                    binding.titleWN.error = "Ward No is required"
+                }
+                isValid = false
+            }
+
+            // Name validation
+            if (nameD.isBlank()) {
+                binding.titleName.error = "Citizen Name is required"
+                isValid = false
+            }
+
+            // Father/Spouse validation
+            if (fatherNameD.isBlank()) {
+                binding.titleFS.error = "Father/Spouse Name is required"
+                isValid = false
+            }
+
+            // Contact validation
+            if (contactD.isBlank()) {
+                binding.titleContact.error = "Contact is required"
+                isValid = false
+            } else if (contactD.length < 10) {
+                binding.titleContact.error = "Contact is not valid"
+                isValid = false
+            }
+
+            // Grievance validation
+            if (greivanceM.isBlank()) {
+                binding.titleGrievance.error = "Grievance Matter is required"
+                isValid = false
+            }
+
+            // Final check
+            if (isValid) {
+                if (Util.isNetworkAvailable(this@CreateGrievanceActivity)) {
+                    saveGrievanceData()
+                } else {
                     saveOfflineData("offline")
                 }
             }
@@ -1029,7 +1160,6 @@ class CreateGrievanceActivity: AppCompatActivity() {
         if(from == "offline"){
             showAlert("No Network","No network connection detected. The data has been saved locally.")
         }
-
     }
 
     /*private fun copyUriToInternalStorage(context: Context, uri: Uri): String {
@@ -1075,7 +1205,6 @@ class CreateGrievanceActivity: AppCompatActivity() {
 
         return file.absolutePath
     }
-
 
     private fun syncPreSignedUrl(gID: String) {
         if (progressDialog != null) {
