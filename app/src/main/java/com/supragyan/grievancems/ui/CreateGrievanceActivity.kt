@@ -82,401 +82,511 @@ class CreateGrievanceActivity: AppCompatActivity() {
         val wordNoTypes = listOf("1", "2", "3", "4","5", "6", "7", "8","9", "10", "11", "12","13", "14", "15", "16","17", "18", "19", "20","21", "22", "23", "24","25", "26", "27", "28","29", "30")
         val wordNoTypesNac = listOf("1", "2", "3", "4","5", "6", "7", "8","9", "10", "11", "12","13", "14", "15", "16","17", "18")
         val gpTypeMap = mapOf(
-            "ATHGARH" to listOf("Dhaipur", "Radhagovindpur", "Samsarpur", "Sathilo","Ichhapur","Anantpur","Dhurusia","Radhakishorepur","Kumarpur","Joranda","Rajanagar","Rajanagar","Bentapada","Tarading","Kuspangi","Oranda","Mancheswar","Kandarpur","Mahakalbasta","Ghantikhal","Dorada","Bhogara","Kulailo","Megha","Katakiasahi","Badabhuin","Jenapadadesh","Khuntakata","Radhakrushnapur","Kandarei","Khuntuni","Dalabhaga","Gurudijhatia","Gobara","Chhagaon"),
-            "TIGIRIA" to listOf("Achalakot", "Badanauput","Bhiruda","Baliput","Hatamala","Gadadharpur","Somapada","Bhogoda","Panchagaon","Nuapatana","Puruna tigiria","Jamadeipur","Bindhanima","Nizigarh"),
+            "ATHGARH" to listOf("Dhaipur", "Radhagovindpur", "Samsarpur", "Sathilo","Ichhapur","Anantpur","Dhurusia","Radhakishorepur","Kumarpur","Joranda","Rajanagar","Bentapada","Tarading","Kuspangi","Oranda","Mancheswar","Kandarpur","Mahakalbasta","Ghantikhal","Dorada","Bhogara","Kulailo","Megha","Katakiasahi","Badabhuin","Jenapadadesh","Khuntakata","Radhakrushnapur","Kandarei","Khuntuni","Dalabhaga","Gurudijhatia","Gobara","Chhagaon"),
+            "TIGIRIA" to listOf("Achalakot", "Badanauput","Viruda","Baliput","Hatamal","Gadadharpur","Somapada","Bhogoda","Panchagaon","Nuapatana","Puruna Tigiria","Jamadeipur","Bindhanima","Nizigarh"),
             "Tangi Chowdwar" to listOf("Kakhadi","Shankarpur","Mahisalanda","Mangarajpur","Badasamntrapur","Brahmapur"),
             "Athagarh NAC" to listOf("")
-        )
+        ).mapValues { (_, value) ->
+            value.sortedBy { it.trim().lowercase() }}
+
         val villagesNacMap = mapOf(
-            "1" to listOf("Guhalapadia",
-                "Santasahi",
-                "Talasahi",
-                "Tanlasahi",
-                "Other"),
-            "2" to listOf("Gadashi",
-                "Dhobasahi",
-                "Pathanasahi",
-                "Keutasahi")
-        )
-        val villageTypeMap = mapOf(
-            "Dhaipur" to listOf("Dhaipur", "Gadadhapur", "Somanathpur", "Radhaprasannapur"),
-            "Radhagovindpur" to listOf("Radhamadhabpur", "Gobindapur","Radhagobindpur","Radhaballavpur","Laxminarayanpur","Haripriyapur","Radhakesabpur"),
-            "Samsarpur" to listOf("Samsarpur","Amrutamanohipatna","Ankula","Budhiapatna","Jagannathpur","Radhapatipur"),
-            "Sathilo" to listOf("Sathilo","Talabasta","Koranga","Kuanla"),
-            "Ichhapur" to listOf("Ichhapur","Gudupada","Patanda","Arakhapatna","Muktadeipur"),
-            "Anantpur" to listOf("Anantpur","Nuasasan","Berhmapur","Srirangpur"),
-            "Dhurusia" to listOf("Dhurusia","Bhuinbarei","Jagmohanpur","Keutapada","Jenapur","Gopalprasad","Baudhapur"),
-            "Radhakishorepur" to listOf("Radhakishorepur","Radhadamodarpur","Belda","Machhyapur","Purusottampur","Khamarnuagaon"),
-            "Kumarpur" to listOf("Kumarpur","Balipur","Kantania","Santanibati","Dampatipur"),
-            "Joranda" to listOf("Joranda","Karikol","Indipur","Paikarapur","Naurath","Haridagahira"),
-            "Rajanagar" to listOf(
-                "Rajanagar",
-                "Tailamal",
-                "Gariapat",
-                "Betakholi",
-                "Banakhandi"
+            "1" to listOf ("Hemamalapur",	"Guhalapadia",	"Samantasahi"),
+            "2" to listOf ("Talasahi",	"Tanlasahi"	),
+            "3" to listOf ("Gadashi",	"Dhobasahi",	"Pathanasahi"),
+            "4" to listOf ("Keutasahi",	"Muslim basti",	"Damasahi",	"Hadisahi",	"Pana sahi",	"Jharana chakka part",	"Adimata colony"	),
+            "5" to listOf ("Rasarashikpur"							),
+            "6" to listOf ("Sasana",	"Block colony",	"Ghoda sasana",	"Old bustand part"				),
+            "7" to listOf ("Upparsahi",	"Kalubasti",	"Uttarachandisahi",	"Police colony",	"Tanlasahi"			),
+            "8" to listOf ("Bautisahi",	"Tanlasahi",	"Puruna Busstand"				),
+            "9" to listOf ("Birakishorepur"),
+            "10" to listOf ("Bagetisahi",	"Harisaranapur",	"Satichourasahi"					),
+            "11" to listOf ("Gaudasahi",	"Bramhana sasana",	"Hadisahi",	"Badheitota",	"Gudiasahi"			),
+            "12" to listOf ("Jagannath sahi",	"Telisahi",	"Bhagabatasahi",	"Doulamandapsahi"				),
+            "13" to listOf ("Panasahi",	"Keutasahi",	"Sadarsahi",	"Doulamandapsahi"				),
+            "14" to listOf ("Jharana chaka part",	"Sabar sahi",	"Medical colony",	"Housing board"				),
+            "15" to listOf ("Banikanthanagar",	"Gandhi marg"					),
+            "16" to listOf ("Kangada sahi",	"Maitri nagar"						),
+            "17" to listOf ("Hatasahi",	"Kantol bazar",	"Bazarsahi",	"Keutasahi",	"Sabarasahi",	"Matiasahi",	"Chandiroad sahi",	"Satichourasahi"),
+            "18" to listOf ("Ashok nagar",	"Rajabati nagar"						)
+        ).mapValues { (_, value) ->
+            value
+                .map { it.trim() }
+                .sortedBy { it.lowercase() }
+        }
+
+        val villageTypeMap = mapOf( "Dhaipur"  to listOf (
+            "Dhaipur ",
+            "Gadadhapur ",
+            "Somanathpur ",
+            "Chatabara ",
+            "Radhaprasannapur "
+        ),
+
+            "Radhagovindpur"  to listOf (
+
+                "Radhamadhabpur ",
+                "Gobindapur ",
+                "Radhagobindpur ",
+                "Radhaballavpur ",
+                "Laxminarayanpur ",
+                "Sudhansumohanpur ",
+                "Haripriyapur ",
+                "Radhakesabpur ",
+            ),
+            "Samsarpur" to listOf (
+                "Samsarpur ",
+                "Amrutamanohipatna ",
+                "Ankula ",
+                "Budhiapatna ",
+                "Jagannathpur ",
+                "Radhapatipur "
+
             ),
 
-            "Bentapada" to listOf(
-                "Bentapada",
-                "Radhakantapatna",
-                "Dhanurjaypur",
-                "Balipada"
+            "Sathilo"  to listOf (
+                "Sathilo ",
+                "Talabasta ",
+                "Koranga ",
+                "Kuanla ",
+            ),
+            "Ichhapur" to listOf (
+                "Ichhapur ",
+                "Gudupada ",
+                "Patanda ",
+                "Arakhapatna ",
+                "Muktadeipur "
             ),
 
-            "Tarading" to listOf(
-                "Tarading",
-                "Gajaamba",
-                "Tentulia",
-                "Bailo",
-                "Gourangpur"
+            "Anantpur" to listOf (
+                "Anantpur ",
+                "Nuasasan ",
+                "Berhmapur ",
+                "Srirangpur "
+            ),
+            "Dhurusia" to listOf (
+
+                "Dhurusia ",
+                "Bhuinbarei ",
+                "Jagmohanpur ",
+                "Keutapada ",
+                "Jenapur ",
+                "Gopalprasad ",
+                "Baudhapur "
             ),
 
-            "Kuspangi" to listOf(
-                "Kuspangi",
-                "Pahilabaar",
-                "Jemadeipur",
-                "Sarkoli",
-                "Baula"
+            "Radhakishorepur"  to listOf (
+                "Radhakishorepur ",
+                "Radhadamodarpur ",
+                "Belda ",
+                "Machhyapur ",
+                "Purusottampur ",
+                "Khamarnuagaon ",
+            ),
+            "Kumarpur" to listOf (
+                "Kumarpur ",
+                "Balipur ",
+                "Kantania ",
+                "Santanibati ",
+                "Dampatipur "
+
+            ),
+            "Joranda" to listOf (
+
+                "Joranda ",
+                "Karikol ",
+                "Indipur ",
+                "Paikarapur ",
+                "Naurath ",
+                "Haridagahira "
+
+            ),
+            "Rajanagar" to listOf (
+
+                "Rajanagar ",
+                "Tailamal ",
+                "Gariapat ",
+                "Betakholi ",
+                "Banakhandi "
+
+            ),
+            "Bentapada" to listOf (
+                "Bentapada ",
+                "Radhakantapatna ",
+                "Kulagada ",
+                "Kendutokoli sabar sahi ",
+                "Manapur ",
+                "Dhanurjaypur ",
+                "Balipada "
+            ),
+            "Tarading" to listOf (
+
+                "Tarading ",
+                "Gajaamba ",
+                "Tentulia ",
+                "Bailo ",
+                "Gourangpur "
+
+            ),
+            "Kuspangi" to listOf (
+
+                "Kuspangi ",
+                "Pahilabaar ",
+                "Jemadeipur ",
+                "Sarkoli ",
+                "Baula "
+            ),
+            "Oranda" to listOf (
+                "Oranda ",
+                "Bali ",
+                "Bali Sasan ",
+                "Radhapriapur Sasan ",
+                "Sitarampur ",
+                "Kapursingh "
+
+            ),
+            "Mancheswar" to listOf (
+                "Mancheswar ",
+                "Paikarapur ",
+                "Suniamuhan ",
+                "Kalankipur ",
+                "Lingapada ",
+                "Prasannapur ",
+                "Nuadiha ",
+                "Narangabasta ",
+                "Brahmanbasta ",
+                "Bamanpur ",
+                "Bishnupur "
+
+            ),
+            "Kandarpur" to listOf (
+
+                "Kandarpur ",
+                "Nandailo ",
+                "Routrapur "
+
+            ),
+            "Mahakalbasta" to listOf (
+
+                "Mahakalbasta ",
+                "Madhabpur ",
+                "Dahisara ",
+                "Champapur ",
+                "Radhadhabapur ",
+                "Parsurampur ",
+                "Haripur "
+
+            ),
+            "Ghantikhal" to listOf (
+                "Ghantikhal ",
+                "Nidhipur ",
+                "Radhashyampur ",
+                "Ramshyampur ",
+                "Chandrabalishyampur "
+
+            ),
+            "Dorada" to listOf (
+
+                "Dorada ",
+                "Iswara ",
+                "Chunapada ",
+                "Gopinathpur ",
+                "Udayapurdesh ",
+                "Tarsing ",
+                "Gundichapur "
+            ),
+            "Bhogara" to listOf (
+                "Bhogara ",
+                "Mathurapur ",
+                "Totapada ",
+                "Radhasaranpur "
+
+            ),
+            "Kulailo" to listOf (
+                "Kulailo ",
+                "Udayapurdal ",
+                "Karakamal ",
+                "Radhakrushnapur ",
+                "Talagarh ",
+                "Patalinga ",
+                "Silapata ",
+                "Birijinga "
+            ),
+            "Megha" to listOf (
+                "Megha ",
+                "Dhurukudia ",
+                "Daspur ",
+                "Baghera "
+            ),
+            "Katakiasahi" to listOf (
+                "Katakiasahi ",
+                "Boulpada ",
+                "Bounsdanda ",
+                "Bandhahata ",
+                "Nuagada ",
+                "Balarampur ",
+                "Petenigaon "
+            ),
+            "Badabhuin" to listOf (
+                "Badabhuindesh ",
+                "Badabhindala ",
+                "Gopiballavpur ",
+                "Raghunathpurpatna ",
+                "Jagiapada "
+            ),
+            "Jenapadadesh" to listOf (
+                "Jenapadadesh ",
+                "Jenapadadal ",
+                "Bhagirathipur ",
+                "Kalaragada ",
+                "Matikote ",
+                "JagannathBallavpurSasan "
+            ),
+            "Khuntakata" to listOf (
+                "Khuntakata ",
+                "Regedapada ",
+                "Nuabandha ",
+                "Mahidhapur ",
+                "Radhamohnpur ",
+                "Radhadarsanpur "
+            ),
+            "Radhakrushnapur" to listOf (
+                "Radhakrushnapur ",
+                "Rahangol ",
+                "Khanduali ",
+                "Saraswatipur "
+            ),
+            "Kandarei"  to listOf (
+                "Kandarei ",
+                "Kansar ",
+                "Mahalaxmipur ",
+                "Manitiri ",
+                "Sabitripur ",
+                "Dalua "
+            ),
+            "Khuntuni" to listOf (
+                "Khuntuni ",
+                "Rampei ",
+                "Krushnashyampur ",
+                "Nursinghpur ",
+                "Radharamanpur "
+            ),
+            "Dalabhaga" to listOf (
+                "Dalabhaga ",
+                "Champia ",
+                "Chhenakhianuagaon ",
+
+                ),
+            "Gurudijhatia" to listOf (
+                "Gurudijhatia ",
+                "Chhotiamba ",
+                "Kolathapangi ",
+                "Kotar ",
+                "Pithakhia ",
+                "Sauria "
+            ),
+            "Gobara" to listOf (
+                "Gobara ",
+                "Kanthapur ",
+                "Kadua Nuagaon ",
+                "Gobara Sasan ",
+                "Rajaballavpur "
+
+            ),
+            "Chhagaon" to listOf (
+                "Chhagaon ",
+                "Manitiri ",
+                "Parbatia ",
+                "Charabhaunri ",
+                "Sasanga ",
+                "Baghua ",
+                "Sarakuan "
             ),
 
-            "Oranda" to listOf(
-                "Oranda",
-                "Bali",
-                "Bali Sasan",
-                "Radhapriapur Sasan",
-                "Sitarampur",
-                "Kupursingh"
-            ),
-
-            "Mancheswar" to listOf(
-                "Mancheswar",
-                "Paikarapur",
-                "Suniamuhan",
-                "Kalankipur",
-                "Lingapada",
-                "Prasannapur",
-                "Nuadiha",
-                "Narangabasta",
-                "Brahmanbasta",
-                "Bamanpur",
-                "Bishnupur"
-            ),
-
-            "Kandarpur" to listOf(
-                "Kandarpur",
-                "Nandailo",
-                "Routrapur"
-            ),
-
-            "Mahakalbasta" to listOf(
-                "Mahakalbasta",
-                "Madhabpur",
-                "Dahisara",
-                "Champapur",
-                "Radhadhabapur",
-                "Parsurampur",
-                "Haripur"
-            ),
-
-            "Ghantikhal" to listOf(
-                "Ghantikhal",
-                "Nidhipur",
-                "Radhashyampur",
-                "Ramshyampur",
-                "Chandrabalishyampur"
-            ),
-
-            "Dorada" to listOf(
-                "Dorada",
-                "Iswara",
-                "Chunapada",
-                "Gopinathpur",
-                "Udayapurdesh",
-                "Tarsing",
-                "Gundichapur"
-            ),
-
-            "Bhogara" to listOf(
-                "Bhogara",
-                "Mathurapur",
-                "Totapada",
-                "Radhasaranpur"
-            ),
-
-            "Kulailo" to listOf(
-                "Kulailo",
-                "Udayapurdal",
-                "Karakamal",
-                "Radhakrushnapur",
-                "Talagarh",
-                "Patalinga",
-                "Silapata",
-                "Birijinga"
-            ),
-
-            "Megha" to listOf(
-                "Megha",
-                "Dhurukudia",
-                "Daspur",
-                "Baghera"
-            ),
-
-            "Katakiasahi" to listOf(
-                "Katakiasahi",
-                "Boulpada",
-                "Bounsdanda",
-                "Bandhahata",
-                "Nuagada",
-                "Balarampur",
-                "Petenigaon"
-            ),
-
-            "Badabhuin" to listOf(
-                "Badabhuindesh",
-                "Badabhindala",
-                "Gopiballavpur",
-                "Raghunathpurpatna",
-                "Jagaiapada"
-            ),
-
-            "Jenapadadesh" to listOf(
-                "Jenapadadesh",
-                "Jenapadadal",
-                "Bhagirathipur",
-                "Matikote",
-                "JagannathBallavpurSasan"
-            ),
-
-            "Khuntakata" to listOf(
-                "Khuntakata",
-                "Regedapada",
-                "Nuabandha",
-                "Mahidhapur",
-                "Radhamohnpur",
-                "Radhadarsanpur"
-            ),
-
-            "Radhakrushnapur" to listOf(
-                "Radhakrushnapur",
-                "Rahangol",
-                "Khanduali",
-                "Saraswatipur"
-            ),
-
-            "Kandarei" to listOf(
-                "Kandarei",
-                "Kansar",
-                "Mahalaxmipur",
-                "Manitiri",
-                "Sabitripur",
-                "Dalua"
-            ),
-
-            "Khuntuni" to listOf(
-                "Khuntuni",
-                "Rampei",
-                "Krushnashyampur",
-                "Nrusinghpur",
-                "Radharamanpur"
-            ),
-
-            "Dalabhaga" to listOf(
-                "Dalabhaga",
-                "Champia",
-                "Chhenakhianuagaon"
-            ),
-
-            "Gurudijhatia" to listOf(
-                "Gurudijhatia",
-                "Chhotiamba",
-                "Kolathapangi",
-                "Kotar",
-                "Pithakhia",
-                "Sauria"
-            ),
-
-            "Gobara" to listOf(
-                "Gobara",
-                "Kanthapur",
-                "Kadua Nuagaon",
-                "Gobara Sasan",
-                "Rajaballavpur"
-            ),
-
-            "Chhagaon" to listOf(
-                "Chhagaon",
-                "Manitiri",
-                "Parbatia",
-                "Charabhaunri",
-                "Sasanga",
-                "Baghua",
-                "Sarakuan"
-            ),
             "Achalakot" to listOf(
-                "Badasahi",
-                "Mundasahi",
-                "Sanapatana sabarsahi",
-                "Badapatna",
-                "Haridapasi"
+                "Badasahi ",
+                "Mundiasahi ",
+                "Sabarsahi ",
+                "Maalisahi ",
+                "Nuasahi ",
+                "Sanapatana ",
+                "Badapatna ",
+                "Haridapasi "
             ),
-
             "Badanauput" to listOf(
-                "Badanauput",
-                "Salijanga",
-                "Baulanga",
-                "Khandahata"
+                "Badanauput ",
+                "Salijanga ",
+                "Baulanga ",
+                "Khandahata "
             ),
+            "Viruda"  to listOf(
+                "Uppargada ",
+                "Talagada ",
+                "Godijharia ",
+                "Balipatana ",
+                "Panasapatana ",
+                "Manimagapatna ",
+                "Viruda "
 
-            "Bhiruda" to listOf(
-                "Uppargada",
-                "Talagada",
-                "Godijharia",
-                "Balipatana",
-                "Panasapatana"
             ),
-
             "Baliput" to listOf(
-                "Baliput",
-                "Biriput",
-                "Baneswarpada",
-                "Godora bandha"
+                "Baliput ",
+                "Biriput ",
+                "Baneswarpada ",
+                "Godorabandha "
             ),
-
-            "Hatamala" to listOf(
-                "Hatamala",
-                "Nandapur",
-                "Sunthipala",
-                "Samapur",
-                "Bishnupur"
+            "Hatamal" to listOf(
+                "Hatamal ",
+                "Nandapur ",
+                "Sunthipal ",
+                "Saanpur ",
+                "Bishnupur "
             ),
-
             "Gadadharpur" to listOf(
-                "Gadadharpur",
-                "Harisaranapur",
-                "Koilikanya",
-                "Manapur",
-                "Kalibiri",
-                "Raghurampur",
-                "Kanthipur",
-                "Sananauput"
+                "Gadadharpur ",
+                "Harisaranapur ",
+                "Koilikanya ",
+                "Manapur ",
+                "Kalibiri ",
+                "Raghurampur ",
+                "Kanthipur ",
+                "Pakhapada ",
+                "Sananauput "
             ),
-
             "Somapada" to listOf(
-                "Somapada",
-                "Tiarasahi",
-                "Baharabila",
-                "Mahuladhipi",
-                "Kumbhiput"
+                "Somapada ",
+                "Tiarasahi ",
+                "Baharabila ",
+                "Mahuladhipi ",
+                "Kumbhiput "
             ),
-
             "Bhogoda" to listOf(
-                "Bhogoda",
-                "Belanta",
-                "Gokhanakhala",
-                "Vejia"
-            ),
+                "Bhogoda ",
+                "Belanta ",
+                "Gokhanakhala ",
+                "Marichia ",
+                "khajuripada ",
+                "Grid sahi ",
+                "Paikasahi ",
+                "Vejia ",
 
+                ),
             "Panchagaon" to listOf(
-                "Panchagaon",
-                "Kadamasahi",
-                "Seshagaon",
-                "Tentuliragadi",
-                "Sudarsanpur",
-                "Popara"
-            ),
+                "Panchagaon ",
+                "Kadamasahi ",
+                "Seshagaon ",
+                "Tentuliragadi ",
+                "Popara ",
+                "Sudarsanpur "
 
+            ),
             "Nuapatana" to listOf(
-                "Gahamarasahi",
-                "Majhi sahi",
-                "Bada sahi",
-                "Tala sahi",
-                "Nalikani sahi",
-                "Chasa sahi",
-                "Sadak sahi",
-                "Kalapata sahi",
-                "Surendra patana",
-                "Mundiasahi"
-            ),
+                "Gahamarasahi ",
+                " Majhi sahi ",
+                " Bada sahi ",
+                "Tala sahi ",
+                "Nalikanti sahi ",
+                "Chasa sahi ",
+                "Sadaksahi ",
+                "Kalapatasahi ",
+                "Surendrapatana ",
+                "Telisahi ",
+                "Golakhpatna sahi ",
+                "Hariballav sahi ",
+                "Sabar sahi ",
+                "Bidyanagari ",
+                "Kansari sahi ",
+                "Bali sahi ",
+                "Phalikia sahi ",
+                "Harijana sahi ",
+                "Mundiasahi "
 
-            "Puruna tigiria" to listOf(
-                "Puruna tigiria",
-                "Paikianra",
-                "Amuniasahi",
-                "Chasanhara"
             ),
-
+            "Puruna Tigiria" to listOf(
+                "Puruna Tigiria ",
+                "Paikianra ",
+                "Amuniasahi ",
+                "Jatiani sabarsahi ",
+                "Chasanhara "
+            ),
             "Jamadeipur" to listOf(
-                "Jemdeipur",
-                "Pankala",
-                "Basudevpur",
-                "Banamalipur",
-                "Chinapatana"
-            ),
+                "Jemdeipur ",
+                "Pankala ",
+                "Basudevpur ",
+                "Banamalipur ",
+                "Goutampur ",
+                "Godisahi ",
+                "Chinapatana "
 
+            ),
             "Bindhanima" to listOf(
-                "Bindhanima",
-                "Sethasahi",
-                "Hatasahi",
-                "Damasahi"
-            ),
+                "Bindhanima ",
+                "Sethasahi ",
+                "Hatasahi ",
+                "Damasahi "
 
-            "Nizigarh" to listOf(
-                "Uppargada",
-                "Majhigada",
-                "Talagada",
-                "Karadapali",
-                "Gopinathpur sasana"
+
             ),
-            "Kakhadi" to listOf(
-                "Bidyadharpur",
-                "Kakhadi",
-                "Mahalapada",
-                "Kaptabarei",
+            "Nizigarh" to listOf(
+                "Nizigarh ",
+                "Karadapali ",
+                " Kadalibadi sabar sahi ",
+                "Gopinathpur Sasana ",
+            ),
+            "Kakhadi" to listOf  (
+                "Bidyadharpur" ,
+                "Kakhadi" ,
+                "Mahalapada" ,
+                "Kaptabarei" ,
                 "Gopinathpada"
             ),
 
-            "Shankarpur" to listOf(
-                "Mathasahi",
-                "Majhisahi",
-                "Benguniasahi",
+            "Shankarpur" to listOf  (
+                "Mathasahi" ,
+                "Majhisahi" ,
+                "Benguniasahi" ,
                 "Amarabatipur"
             ),
 
-            "Mahisalanda" to listOf(
-                "Mahisalanda",
-                "Machapangi",
-                "Ambilajhari",
-                "Banto",
-                "Gahanda",
-                "Dudhianali"
-            ),
+            "Mahisalanda" to listOf  (
+                "Mahisalanda" ,
+                "Machapangi" ,
+                "Ambilajhari" ,
+                "Banto" ,
+                "Gahanda" ,
+                "Dudhianali" ,
 
-            "Mangarajpur" to listOf(
-                "Mangarajpur",
-                "Bagdhara",
-                "Ramchandrapur",
-                "Patapolasahi",
-                "Kochilapada",
-                "Kochilanugaon",
+                ),
+
+            "Mangarajpur" to listOf  (
+                "Mangarajpur" ,
+                "Bagdhara" ,
+                "Ramchandrapur" ,
+                "Patapolasahi" ,
+                "Kochilapada" ,
+                "Kochilanugaon" ,
                 "Berena"
             ),
 
-            "Badasamntrapur" to listOf(
-                "Badasamntarapur",
-                "Sardar kharida",
-                "Badapadagaon",
+            "Badasamntrapur" to listOf  (
+                "Badasamntarapur" ,
+                "Sardar kharida" ,
+                "Badapadagaon" ,
                 "Dianipathena"
             ),
 
-            "Brahmapur" to listOf(
-                "Brahmapur",
-                "Belda",
-                "Kamanga",
-                "Kanjia",
+            "Brahmapur" to listOf  (
+                "Brahmapur" ,
+                "Belda" ,
+                "Kamanga" ,
+                "Kanjia" ,
                 "Jamadeipur"
-            )
-        )
+
+            )) .mapValues { (_, value) ->
+            value
+                .map { it.trim() }   // remove trailing spaces
+                .sortedBy { it.lowercase() }
+        }
+
 
         val adapter = ArrayAdapter(this, R.layout.simple_list_item_1, grievanceTypes)
         binding.spinnerBlock.setAdapter(adapter)
@@ -877,9 +987,22 @@ class CreateGrievanceActivity: AppCompatActivity() {
         }
     }
     private val galleryLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            uri?.let { addImage(it) }
+        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+
+            if (uris.isEmpty()) return@registerForActivityResult
+
+            val remainingSlots = 10 - fileList.size
+
+            if (remainingSlots <= 0) {
+                Toast.makeText(this, "Maximum 10 files allowed", Toast.LENGTH_SHORT).show()
+                return@registerForActivityResult
+            }
+
+            uris.take(remainingSlots).forEach { uri ->
+                addImage(uri)
+            }
         }
+
 
     private val cameraLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -889,15 +1012,26 @@ class CreateGrievanceActivity: AppCompatActivity() {
         }
 
     private val documentLauncher =
-        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            uri?.let {
+        registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+
+            if (uris.isEmpty()) return@registerForActivityResult
+
+            val remainingSlots = 10 - fileList.size
+
+            if (remainingSlots <= 0) {
+                Toast.makeText(this, "Maximum 10 files allowed", Toast.LENGTH_SHORT).show()
+                return@registerForActivityResult
+            }
+
+            uris.take(remainingSlots).forEach { uri ->
                 contentResolver.takePersistableUriPermission(
-                    it,
+                    uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-                addFile(it)
+                addFile(uri)
             }
         }
+
 
     private fun addImage(uri: Uri) {
         if (fileList.size >= 10) {
