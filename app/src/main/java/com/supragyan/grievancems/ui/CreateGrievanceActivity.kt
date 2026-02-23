@@ -114,16 +114,14 @@ class CreateGrievanceActivity: AppCompatActivity() {
                 .sortedBy { it.lowercase() }
         }
 
-        val villageTypeMap = mapOf( "Dhaipur"  to listOf (
+        val villageTypeMap = mapOf("Dhaipur"  to listOf (
             "Dhaipur ",
             "Gadadhapur ",
             "Somanathpur ",
             "Chatabara ",
-            "Radhaprasannapur "
-        ),
+            "Radhaprasannapur "),
 
             "Radhagovindpur"  to listOf (
-
                 "Radhamadhabpur ",
                 "Gobindapur ",
                 "Radhagobindpur ",
@@ -1174,9 +1172,9 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     grievanceID = response.getString("grievanceId")
                     if(fileList.size>0){
                         syncPreSignedUrl(grievanceID)
+                    }else{
+                        showAlert("Success", "New grievance created successfully")
                     }
-                    //showAlert("Success", "New grievance created successfully")
-
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }
