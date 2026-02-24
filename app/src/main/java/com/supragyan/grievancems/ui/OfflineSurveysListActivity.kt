@@ -73,21 +73,23 @@ class OfflineSurveysListActivity: AppCompatActivity() {
         binding.recyclerViewD.layoutManager = LinearLayoutManager(this)
 
         binding.btnSubmit.setOnClickListener{
-            val userId = sharedPreferenceClass?.getValue_string("USERID")
-            val offlineCount = db.getAllGrievanceData(userId)
+            if(Util.isNetworkAvailable(this@OfflineSurveysListActivity)){
+                val userId = sharedPreferenceClass?.getValue_string("USERID")
+                val offlineCount = db.getAllGrievanceData(userId)
 
-            if(offlineCount.size>0){
-                val workRequest = OneTimeWorkRequestBuilder<SyncAllWorker>()
-                    .build()
+                if(offlineCount.size>0){
+                    val workRequest = OneTimeWorkRequestBuilder<SyncAllWorker>()
+                        .build()
 
-                WorkManager.getInstance(this)
-                    .enqueueUniqueWork(
-                        "sync_work",
-                        ExistingWorkPolicy.KEEP,
-                        workRequest
-                    )
+                    WorkManager.getInstance(this)
+                        .enqueueUniqueWork(
+                            "sync_work",
+                            ExistingWorkPolicy.KEEP,
+                            workRequest
+                        )
 
-                observeWork(workRequest.id)
+                    observeWork(workRequest.id)
+                }
             }
         }
 
