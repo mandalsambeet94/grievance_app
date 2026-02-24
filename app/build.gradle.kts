@@ -63,4 +63,5 @@ dependencies {
     implementation(libs.glide)
     kapt(libs.glideCompiler)
     implementation(libs.zoomage)
+    implementation(libs.androidx.work.runtime.ktx)
 }

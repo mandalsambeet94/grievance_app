@@ -139,9 +139,10 @@ class HomeFragment : Fragment() {
                 }
                 println("error $error")
                 val response = error.networkResponse
+                println("response $response")
                 if ( response != null) {
                     val statusCode = error.networkResponse.statusCode
-
+                    println("statusCode $statusCode")
                     if (statusCode == 401 || statusCode == 402 || statusCode == 403 || statusCode == 404) {
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)

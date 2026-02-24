@@ -129,7 +129,7 @@ class TodayGrievanceActivity: AppCompatActivity() {
                 val firstObj = item.attachments.optJSONObject(0)
                 val filePath = firstObj?.optString("s3Url")
                 val fileType = firstObj?.optString("fileType")
-                if (fileType == "PHOTO") {
+                if (fileType == "IMAGE") {
                     // show actual image
                     Glide.with(holder.itemView.context)
                         .load(filePath)

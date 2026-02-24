@@ -1,7 +1,10 @@
 package com.supragyan.grievancems.webservices;
 
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.multidex.MultiDex;
@@ -31,9 +34,29 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        createNotificationChannel();
     }
 
+    private void createNotificationChannel() {
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            NotificationChannel channel = new NotificationChannel(
+                    "sync_channel",                // MUST match Worker channel ID
+                    "Data Sync",
+                    NotificationManager.IMPORTANCE_LOW
+            );
+
+            channel.setDescription("Used for background data sync");
+
+            NotificationManager manager =
+                    getSystemService(NotificationManager.class);
+
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
+        }
+    }
 
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);

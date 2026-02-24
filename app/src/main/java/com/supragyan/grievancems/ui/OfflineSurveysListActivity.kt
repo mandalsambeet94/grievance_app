@@ -1,8 +1,10 @@
 package com.supragyan.grievancems.ui
 
+import android.app.NotificationManager
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,18 +14,42 @@ import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.ForegroundInfo
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
+import com.android.volley.AuthFailureError
+import com.android.volley.DefaultRetryPolicy
+import com.android.volley.Request.Method
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonObjectRequest
 import com.bumptech.glide.Glide
+import com.supragyan.grievancems.GrievanceRepository
 import com.supragyan.grievancems.R
 import com.supragyan.grievancems.databinding.ActivityTotalSurveysBinding
 import com.supragyan.grievancems.ui.database.GrievanceModel
 import com.supragyan.grievancems.ui.database.SQLiteDB
 import com.supragyan.grievancems.utility.SharedPreferenceClass
+import com.supragyan.grievancems.utility.Util
+import com.supragyan.grievancems.webservices.AppController
+import kotlinx.coroutines.suspendCancellableCoroutine
+import org.json.JSONException
+import org.json.JSONObject
 import java.io.File
+import java.nio.charset.StandardCharsets
+import java.util.UUID
+import kotlin.coroutines.resume
 
 class OfflineSurveysListActivity: AppCompatActivity() {
     private lateinit var binding: ActivityTotalSurveysBinding
@@ -46,20 +72,181 @@ class OfflineSurveysListActivity: AppCompatActivity() {
         }
         binding.recyclerViewD.layoutManager = LinearLayoutManager(this)
 
+        binding.btnSubmit.setOnClickListener{
+            val userId = sharedPreferenceClass?.getValue_string("USERID")
+            val offlineCount = db.getAllGrievanceData(userId)
+
+            if(offlineCount.size>0){
+                val workRequest = OneTimeWorkRequestBuilder<SyncAllWorker>()
+                    .build()
+
+                WorkManager.getInstance(this)
+                    .enqueueUniqueWork(
+                        "sync_work",
+                        ExistingWorkPolicy.KEEP,
+                        workRequest
+                    )
+
+                observeWork(workRequest.id)
+            }
+        }
+
+    }
+
+    private fun observeWork(workId: UUID) {
+
+        WorkManager.getInstance(this)
+            .getWorkInfoByIdLiveData(workId)
+            .observe(this) { workInfo ->
+
+                if (workInfo != null) {
+
+                    when (workInfo.state) {
+
+                        WorkInfo.State.RUNNING -> {
+                            binding.progressBar.visibility = View.VISIBLE
+                            binding.btnSubmit.isEnabled = false
+                        }
+
+                        WorkInfo.State.SUCCEEDED -> {
+                            binding.progressBar.visibility = View.GONE
+                            binding.btnSubmit.isEnabled = true
+                            Toast.makeText(this, "Sync Completed", Toast.LENGTH_SHORT).show()
+                            loadOfflineData()// 🔥 Refresh list
+                        }
+
+                        WorkInfo.State.FAILED,
+                        WorkInfo.State.CANCELLED -> {
+                            binding.progressBar.visibility = View.GONE
+                            binding.btnSubmit.isEnabled = true
+                            Toast.makeText(this, "Sync Failed", Toast.LENGTH_SHORT).show()
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
+    }
+
+    class SyncAllWorker(
+        context: Context,
+        workerParams: WorkerParameters
+    ) : CoroutineWorker(context, workerParams) {
+
+        override suspend fun doWork(): Result {
+
+            setForeground(createForegroundInfo("Uploading data..."))
+            return try {
+                // 🔥 Call your API loop here
+                val repo = GrievanceRepository(applicationContext)
+                val sharedPreferenceClass = SharedPreferenceClass(applicationContext)
+                val userId = sharedPreferenceClass.getValue_string("USERID")
+                val db = SQLiteDB(applicationContext)
+                val offlineList = db.getAllGrievanceData(userId)
+                for (item in offlineList) {
+                    // 1️⃣ Save grievance
+                    val grievanceId = repo.saveGrievance(item)
+                        ?: return Result.retry()
+
+                    // 2️⃣ If photos exist
+                    if (!item.photos.isNullOrBlank()) {
+
+                        val uris = item.photos.split(",").map { it.toUri() }
+
+                        val uploads = repo.getPresignedUrls(grievanceId, uris)
+                            ?: return Result.retry()
+
+                        for (i in 0 until uploads.length()) {
+
+                            val obj = uploads.getJSONObject(i)
+
+                            val presignedUrl = obj.getString("presignedUrl")
+                            val uploadId = obj.getString("uploadId")
+                            val fileName = obj.getString("fileName")
+
+                            val fileUri = uris.first {
+                                File(it.path!!).name == fileName
+                            }
+
+                            val uploaded = repo.uploadFileToS3(
+                                presignedUrl,
+                                fileUri,
+                                repo.getMimeType(fileUri)
+                            )
+
+                            if (!uploaded) return Result.retry()
+
+                            val confirmed = repo.confirmUpload(uploadId)
+                            if (!confirmed) return Result.retry()
+                        }
+                    }
+                    // 3️⃣ Delete row
+                    db.deleteRow(item.offlineID)
+                }
+
+                showSuccessNotification()
+
+                Result.success()
+
+            } catch (e: Exception) {
+                Result.failure()
+            }
+        }
+
+        private fun createForegroundInfo(progress: String): ForegroundInfo {
+
+            val channelId = "sync_channel"
+
+            val notification = NotificationCompat.Builder(applicationContext, channelId)
+                .setContentTitle("Sync in progress")
+                .setContentText(progress)
+                .setSmallIcon(R.drawable.upload_file)
+                .setOngoing(true)
+                .build()
+
+            return ForegroundInfo(
+                1,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC   // 🔥 IMPORTANT
+            )
+        }
+
+        private fun showSuccessNotification() {
+
+            val notification = NotificationCompat.Builder(applicationContext, "sync_channel")
+                .setContentTitle("Sync Completed")
+                .setContentText("All offline data synced successfully")
+                .setSmallIcon(R.drawable.check_circle)
+                .setAutoCancel(true)
+                .build()
+
+            val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            manager.notify(2454, notification)
+        }
     }
 
     override fun onResume() {
         super.onResume()
+        loadOfflineData()
+
+    }
+
+    private fun loadOfflineData() {
+
         val userId = sharedPreferenceClass?.getValue_string("USERID")
         val offlineCount = db.getAllGrievanceData(userId)
 
-        if(offlineCount.size>0){
-            val adapter = ItemListAdapter(offlineCount, this@OfflineSurveysListActivity)
-            binding.recyclerViewD.setAdapter(adapter)
-        }else{
+        if (offlineCount.size > 0) {
+            val adapter = ItemListAdapter(offlineCount, this)
+            binding.recyclerViewD.adapter = adapter
+            binding.btnSubmit.visibility = View.VISIBLE
+            binding.tvNoData.visibility = View.GONE
+        } else {
+            binding.recyclerViewD.adapter = null
             binding.tvNoData.visibility = View.VISIBLE
+            binding.btnSubmit.visibility = View.GONE
         }
-
     }
 
     private class ItemListAdapter(private val notesList: ArrayList<GrievanceModel>, private val context: Context) : RecyclerView.Adapter<ItemListAdapter.MyViewHolder>() {
@@ -156,6 +343,104 @@ class OfflineSurveysListActivity: AppCompatActivity() {
         }
     }
 
+    suspend fun saveGrievanceSuspend(
+        context: Context,
+        offlineData: GrievanceModel
+    ): String? = suspendCancellableCoroutine { continuation ->
+        val tag = "user_save"
+        val jObj = JSONObject()
+        try {
+            jObj.put("block", offlineData.block)
+            jObj.put("gp", offlineData.gp)
+            jObj.put("villageSahi", offlineData.village)
+            jObj.put("address", offlineData.address)
+            jObj.put("wardNo", offlineData.wardNo)
+            jObj.put("name", offlineData.name)
+            jObj.put("fatherSpouseName", offlineData.fatherName)
+            jObj.put("contact", offlineData.contact)
+            val topics = mutableListOf<String>()
+            if(!offlineData.topic.isNullOrBlank()){
+                val topicList = offlineData.topic.split(",").map { it.trim() }
+                for (i in 0 until topicList.size) {
+                    val text = topicList[i]
+                    if (text.isNotEmpty()) {
+                        topics.add(text)
+                    }
+                }
+                topics.forEachIndexed { index, value ->
+                    jObj.put("topic${index + 1}", value)
+                }
+            }
+            jObj.put("grievanceDetails", offlineData.grievanceMatter)
+            jObj.put("agentName", sharedPreferenceClass?.getValue_string("AGENT_NAME"))
+            jObj.put("agentRemarks", offlineData.remark)
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+        println("params are: $jObj")
+
+        val data: JsonObjectRequest = object : JsonObjectRequest(
+            Method.POST,
+            resources.getString(com.supragyan.grievancems.R.string.main_url) +
+                    resources.getString(com.supragyan.grievancems.R.string.submit_grievance_url),
+            jObj,
+            Response.Listener<JSONObject> { response: JSONObject ->
+                try {
+                    println("list response is $response")
+                    val grievanceID = response.getString("grievanceId")
+                    continuation.resume(grievanceID)
+                    /*if(fileList.size>0){
+                        syncPreSignedUrl(grievanceID)
+                    }*/
+                    //showAlert("Success", "New grievance created successfully")
+
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    continuation.resume(null)
+                }
+            },
+            Response.ErrorListener { error: VolleyError ->
+
+                println("error $error")
+                val response = error.networkResponse
+
+                if ( response != null) {
+                    val statusCode = error.networkResponse.statusCode
+
+                    if (statusCode == 401 || statusCode == 402 || statusCode == 403 || statusCode == 404) {
+                        val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
+                        val jsonObject = JSONObject(responseBody)
+                        val message = jsonObject.optString("message", "Something went wrong! please try after some time")
+                        val header = jsonObject.optString("error", "Authentication failed")
+                        //showAlert(header,message)
+                        continuation.resume(null)
+                    }else{
+                        println("error")
+                        continuation.resume(null)
+                        //showAlert("Error","Server Error!!! Please Try After Some Time.")
+                    }
+                } else {
+                    println("error")
+                    continuation.resume(null)
+                    //showAlert("Error","Server Error!!! Please Try After Some Time.")
+                }
+            }) {
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+
+                val token = sharedPreferenceClass?.getValue_string("TOKEN")   // or wherever you store token
+                headers["Authorization"] = "Bearer $token"
+                headers["Accept"] = "application/json"
+
+                return headers
+            }
+        }
+
+        data.retryPolicy = DefaultRetryPolicy(30000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
+        AppController.getInstance().requestQueue.add(data).addMarker(tag)
+
+    }
 
 
 }

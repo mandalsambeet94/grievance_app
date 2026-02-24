@@ -24,7 +24,8 @@ class SplashActivity: AppCompatActivity() {
     internal var permissions = arrayOf(
         Manifest.permission.CAMERA,
         Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.POST_NOTIFICATIONS
     )
     var sharedPreferenceClass: SharedPreferenceClass? = null
 
@@ -94,6 +95,7 @@ class SplashActivity: AppCompatActivity() {
                 perms[Manifest.permission.CAMERA] = PackageManager.PERMISSION_GRANTED
                 perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
                 perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
+                perms[Manifest.permission.POST_NOTIFICATIONS] = PackageManager.PERMISSION_GRANTED
 
                 if (grantResults.size > 0) {
                     for (i in permissions.indices)
@@ -101,6 +103,7 @@ class SplashActivity: AppCompatActivity() {
                     if (perms[Manifest.permission.CAMERA] == PackageManager.PERMISSION_GRANTED
                         && perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
                         && perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
+                        && perms[Manifest.permission.POST_NOTIFICATIONS] == PackageManager.PERMISSION_GRANTED
                     ) {
                         launchHomeScreen()
                     } else {
@@ -115,6 +118,10 @@ class SplashActivity: AppCompatActivity() {
                             || ActivityCompat.shouldShowRequestPermissionRationale(
                                 this,
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            )
+                            || ActivityCompat.shouldShowRequestPermissionRationale(
+                                this,
+                                Manifest.permission.POST_NOTIFICATIONS
                             )
                         ) {
                             showDialogOK("Service permission is required. Please allow all the permissions for better user experience.",
