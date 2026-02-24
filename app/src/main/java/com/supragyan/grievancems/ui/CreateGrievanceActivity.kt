@@ -10,6 +10,7 @@ import android.provider.OpenableColumns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -69,6 +70,9 @@ class CreateGrievanceActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCreateGrievanceBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        window.setSoftInputMode(
+            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        )
         progressDialog = ProgressDialog(this@CreateGrievanceActivity)
         sharedPreferenceClass = SharedPreferenceClass(this@CreateGrievanceActivity)
         progressDialog!!.setMessage("Loading Please wait")
@@ -79,8 +83,8 @@ class CreateGrievanceActivity: AppCompatActivity() {
             finish()
         }
         val grievanceTypes = listOf("ATHGARH", "TIGIRIA", "Tangi Chowdwar", "Athagarh NAC")
-        val wordNoTypes = listOf("1", "2", "3", "4","5", "6", "7", "8","9", "10", "11", "12","13", "14", "15", "16","17", "18", "19", "20","21", "22", "23", "24","25", "26", "27", "28","29", "30")
-        val wordNoTypesNac = listOf("1", "2", "3", "4","5", "6", "7", "8","9", "10", "11", "12","13", "14", "15", "16","17", "18")
+        val wordNoTypes = listOf("","1", "2", "3", "4","5", "6", "7", "8","9", "10", "11", "12","13", "14", "15", "16","17", "18", "19", "20","21", "22", "23", "24","25", "26", "27", "28","29", "30")
+        val wordNoTypesNac = listOf("","1", "2", "3", "4","5", "6", "7", "8","9", "10", "11", "12","13", "14", "15", "16","17", "18")
         val gpTypeMap = mapOf(
             "ATHGARH" to listOf("Dhaipur", "Radhagovindpur", "Samsarpur", "Sathilo","Ichhapur","Anantpur","Dhurusia","Radhakishorepur","Kumarpur","Joranda","Rajanagar","Bentapada","Tarading","Kuspangi","Oranda","Mancheswar","Kandarpur","Mahakalbasta","Ghantikhal","Dorada","Bhogara","Kulailo","Megha","Katakiasahi","Badabhuin","Jenapadadesh","Khuntakata","Radhakrushnapur","Kandarei","Khuntuni","Dalabhaga","Gurudijhatia","Gobara","Chhagaon"),
             "TIGIRIA" to listOf("Achalakot", "Badanauput","Viruda","Baliput","Hatamal","Gadadharpur","Somapada","Bhogoda","Panchagaon","Nuapatana","Puruna Tigiria","Jamadeipur","Bindhanima","Nizigarh"),
@@ -885,14 +889,14 @@ class CreateGrievanceActivity: AppCompatActivity() {
             }
 
             // Ward validation
-            if (wardData.isBlank()) {
+            /*if (wardData.isBlank()) {
                 if (blockData == "Athagarh NAC") {
                     binding.titleWNNac.error = "Ward No is required"
                 } else {
                     binding.titleWN.error = "Ward No is required"
                 }
                 isValid = false
-            }
+            }*/
 
             // Name validation
             if (nameD.isBlank()) {

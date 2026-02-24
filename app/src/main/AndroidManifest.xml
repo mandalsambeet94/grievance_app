@@ -48,7 +48,7 @@
             android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".ui.CreateGrievanceActivity"
             android:theme="@style/Theme.GrievanceMS.NoActionBar"
-            android:windowSoftInputMode="stateHidden"/>
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".ui.OfflineSurveysListActivity"
             android:theme="@style/Theme.GrievanceMS.NoActionBar"
             android:windowSoftInputMode="stateHidden"/>

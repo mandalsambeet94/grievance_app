@@ -12,13 +12,15 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fillViewport="true"
+        android:fitsSystemWindows="true"
         android:scrollbars="none"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="10dp"
             android:layout_margin="10dp"
@@ -486,11 +488,15 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etGrievanceMatter"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:hint="Enter Grievance Matter"
-                    android:inputType="none"
-                    android:padding="12dp"
-                    android:textSize="14sp" />
+
+                    android:minLines="5"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:imeOptions="actionDone"
+                    android:scrollbars="vertical"
+                    android:overScrollMode="ifContentScrolls" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -517,12 +523,16 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etRemark"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
                     android:hint="Enter Remark"
-                    android:inputType="none"
-                    android:padding="12dp"
-                    android:textSize="14sp" />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:minLines="5"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:imeOptions="actionDone"
+                    android:scrollbars="vertical"
+                    android:overScrollMode="ifContentScrolls" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
