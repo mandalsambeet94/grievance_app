@@ -1,15 +1,19 @@
 package com.supragyan.grievancems.ui
 
+import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -108,11 +112,16 @@ class OfflineSurveysListActivity: AppCompatActivity() {
                         WorkInfo.State.RUNNING -> {
                             binding.progressBar.visibility = View.VISIBLE
                             binding.btnSubmit.isEnabled = false
+                            window.setFlags(
+                                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                            )
                         }
 
                         WorkInfo.State.SUCCEEDED -> {
                             binding.progressBar.visibility = View.GONE
                             binding.btnSubmit.isEnabled = true
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                             Toast.makeText(this, "Sync Completed", Toast.LENGTH_SHORT).show()
                             loadOfflineData()// 🔥 Refresh list
                         }
@@ -129,6 +138,7 @@ class OfflineSurveysListActivity: AppCompatActivity() {
                 }
             }
     }
+
 
     class SyncAllWorker(
         context: Context,
@@ -197,9 +207,9 @@ class OfflineSurveysListActivity: AppCompatActivity() {
 
         private fun createForegroundInfo(progress: String): ForegroundInfo {
 
-            val channelId = "sync_channel"
+            createChannel() // 🔥 VERY IMPORTANT
 
-            val notification = NotificationCompat.Builder(applicationContext, channelId)
+            val notification = NotificationCompat.Builder(applicationContext, "sync_channel")
                 .setContentTitle("Sync in progress")
                 .setContentText(progress)
                 .setSmallIcon(R.drawable.upload_file)
@@ -213,16 +223,46 @@ class OfflineSurveysListActivity: AppCompatActivity() {
             )
         }
 
+        private fun createChannel() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    "sync_channel",
+                    "Sync Service",
+                    NotificationManager.IMPORTANCE_LOW
+                )
+                channel.description = "Shows sync progress"
+
+                val manager = applicationContext
+                    .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+                manager.createNotificationChannel(channel)
+            }
+        }
+
         private fun showSuccessNotification() {
+
+            // 🔥 Intent to open your app (MainActivity)
+            val intent = Intent(applicationContext, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+
+            val pendingIntent = PendingIntent.getActivity(
+                applicationContext,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
 
             val notification = NotificationCompat.Builder(applicationContext, "sync_channel")
                 .setContentTitle("Sync Completed")
                 .setContentText("All offline data synced successfully")
                 .setSmallIcon(R.drawable.check_circle)
                 .setAutoCancel(true)
+                .setContentIntent(pendingIntent)   // 🔥 VERY IMPORTANT
                 .build()
 
-            val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val manager = applicationContext
+                .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             manager.notify(2454, notification)
         }
