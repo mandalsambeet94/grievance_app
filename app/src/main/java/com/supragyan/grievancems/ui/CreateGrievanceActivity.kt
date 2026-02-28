@@ -646,23 +646,26 @@ class CreateGrievanceActivity: AppCompatActivity() {
         binding.spinnerWNNac.setOnClickListener {
             binding.spinnerWNNac.showDropDown()
         }
-        binding.spinnerWNNac.setOnItemClickListener { parent, view, position, id ->
+        binding.spinnerWNNac.setOnItemClickListener { parent, _, position, _ ->
+
             wardData = parent.getItemAtPosition(position).toString()
-            println("spinnerWN $wardData")
+
             binding.titleWNNac.error = null
-            binding.spinnerVS.setText("", false)
+
+            // 🔥 Clear previous village selection
+            villageData = ""
+            binding.spinnerVSNAc.setText("", false)
+
+            // Load new Sahi list based on selected ward
             val subVSs = villagesNacMap[wardData].orEmpty()
+
             if (subVSs.isNotEmpty()) {
-                //binding.titleGP.visibility = View.VISIBLE
                 val subAdapter = ArrayAdapter(
                     this,
                     android.R.layout.simple_list_item_1,
                     subVSs
                 )
                 binding.spinnerVSNAc.setAdapter(subAdapter)
-            } else {
-                //binding.titleGP.visibility = View.GONE
-                binding.spinnerVS.isEnabled = false
             }
         }
 
@@ -869,23 +872,30 @@ class CreateGrievanceActivity: AppCompatActivity() {
             // Block validation
             if (blockData.isBlank()) {
                 binding.tilGrievanceType.error = "Block is required"
+                scrollToView(binding.tilGrievanceType)
                 isValid = false
+                return@setOnClickListener
             }
 
             // GP validation
             if (blockData != "Athagarh NAC" && gpData.isBlank()) {
                 binding.titleGP.error = "GP is required"
+                scrollToView(binding.titleGP)
                 isValid = false
+                return@setOnClickListener
             }
 
             // Village validation
             if (villageData.isBlank()) {
                 if (blockData == "Athagarh NAC") {
                     binding.titleVSNAc.error = "Village/Sahi is required"
+                    scrollToView(binding.titleVSNAc)
                 } else {
                     binding.titleVS.error = "Village/Sahi is required"
+                    scrollToView(binding.titleVS)
                 }
                 isValid = false
+                return@setOnClickListener
             }
 
             // Ward validation
@@ -897,32 +907,48 @@ class CreateGrievanceActivity: AppCompatActivity() {
                 }
                 isValid = false
             }*/
+            if (blockData == "Athagarh NAC" && wardData.isBlank()) {
+                binding.titleWNNac.error = "Ward No is required"
+                scrollToView(binding.titleWNNac)
+                isValid = false
+                return@setOnClickListener
+            }
 
             // Name validation
             if (nameD.isBlank()) {
                 binding.titleName.error = "Citizen Name is required"
+                scrollToView(binding.titleName)
                 isValid = false
+                return@setOnClickListener
             }
 
             // Father/Spouse validation
             if (fatherNameD.isBlank()) {
                 binding.titleFS.error = "Father/Spouse Name is required"
+                scrollToView(binding.titleFS)
                 isValid = false
+                return@setOnClickListener
             }
 
             // Contact validation
             if (contactD.isBlank()) {
                 binding.titleContact.error = "Contact is required"
+                scrollToView(binding.titleContact)
                 isValid = false
+                return@setOnClickListener
             } else if (contactD.length < 10) {
                 binding.titleContact.error = "Contact is not valid"
+                scrollToView(binding.titleContact)
                 isValid = false
+                return@setOnClickListener
             }
 
             // Grievance validation
             if (greivanceM.isBlank()) {
                 binding.titleGrievance.error = "Grievance Matter is required"
+                scrollToView(binding.titleGrievance)
                 isValid = false
+                return@setOnClickListener
             }
 
             // Final check
@@ -1168,15 +1194,16 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     resources.getString(com.supragyan.grievancems.R.string.submit_grievance_url),
             jObj,
             Response.Listener<JSONObject> { response: JSONObject ->
-                if (progressDialog != null) {
+                /*if (progressDialog != null) {
                     progressDialog!!.dismiss()
-                }
+                }*/
                 try {
                     println("list response is $response")
                     grievanceID = response.getString("grievanceId")
                     if(fileList.size>0){
                         syncPreSignedUrl(grievanceID)
                     }else{
+                        progressDialog?.dismiss()
                         showAlert("Success", "New grievance created successfully")
                     }
                 } catch (e: JSONException) {
@@ -1376,9 +1403,9 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     resources.getString(com.supragyan.grievancems.R.string.pre_signed_url),
             jObj,
             Response.Listener<JSONObject> { response: JSONObject ->
-                if (progressDialog != null) {
+                /*if (progressDialog != null) {
                     progressDialog!!.dismiss()
-                }
+                }*/
                 try {
                     println("list response is $response")
                     handlePresignedResponse(response)
@@ -1466,13 +1493,8 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     uploadedCount++
                     syncConfirmAPI(uploadIDD)
                     if (uploadedCount == totalFiles) {
-                        if (progressDialog != null) {
-                            progressDialog!!.dismiss()
-                        }
-                        println("✅ All files uploaded successfully")
+                        progressDialog?.dismiss()
                         showAlert("Success", "All files uploaded successfully")
-                        // 🔔 Call final API here if needed
-                        // submitGrievance()
                     }
                 },
                 onError = { error ->
@@ -1546,6 +1568,12 @@ class CreateGrievanceActivity: AppCompatActivity() {
         )
 
         AppController.getInstance().requestQueue.add(request)
+    }
+
+    private fun scrollToView(view: View) {
+        binding.nestedScrollView.post {
+            binding.nestedScrollView.smoothScrollTo(0, view.top)
+        }
     }
 
     private fun syncConfirmAPI(uploadIDD: String) {

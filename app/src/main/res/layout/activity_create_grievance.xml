@@ -10,6 +10,7 @@
         android:id="@+id/toolbar"/>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -527,7 +528,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
 
-                    android:minLines="5"
+                    android:maxLines="2"
+                    android:ellipsize="end"
                     android:gravity="top|start"
                     android:inputType="textMultiLine"
                     android:imeOptions="actionDone"

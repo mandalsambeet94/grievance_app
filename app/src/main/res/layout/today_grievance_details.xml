@@ -41,7 +41,7 @@
                     android:id="@+id/spinnerBlock"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
                     android:textColor="@color/black"
@@ -67,7 +67,7 @@
                     android:id="@+id/spinnerGP"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
                     android:textColor="@color/black"
@@ -93,7 +93,7 @@
                     android:id="@+id/spinnerVS"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
                     android:textColor="@color/black"
@@ -119,7 +119,7 @@
                     android:id="@+id/etAddress"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
                     android:textColor="@color/black"
@@ -145,7 +145,7 @@
                     android:id="@+id/spinnerWN"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
                     android:textColor="@color/black"
@@ -171,7 +171,7 @@
                     android:id="@+id/etName"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
                     android:textColor="@color/black"
@@ -197,7 +197,7 @@
                     android:id="@+id/etFather"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:gravity="center|start"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
@@ -224,7 +224,7 @@
                     android:id="@+id/etContact"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:gravity="center|start"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
@@ -253,7 +253,7 @@
                     android:id="@+id/etTopic1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:gravity="center|start"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
@@ -282,7 +282,7 @@
                     android:id="@+id/etTopic2"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:gravity="center|start"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
@@ -311,7 +311,7 @@
                     android:id="@+id/etTopic3"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:gravity="center|start"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
@@ -340,7 +340,7 @@
                     android:id="@+id/etTopic4"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:gravity="center|start"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
@@ -369,7 +369,7 @@
                     android:id="@+id/etTopic5"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:text=": NA"
+                    android:text=":  N/A"
                     android:gravity="center|start"
                     android:layout_weight="0.7"
                     android:textStyle="bold"
@@ -378,57 +378,58 @@
 
             </LinearLayout>
 
+            <!-- Grievance Matter -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="7dp"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Grievance Matter"
-                    android:layout_weight="0.3"
                     android:textColor="@color/black"
                     android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/etGrievanceMatter"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:text=": NA"
-                    android:gravity="center|start"
-                    android:layout_weight="0.7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text=" N/A"
                     android:textStyle="bold"
                     android:textColor="@color/black"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="2dp" />
 
             </LinearLayout>
 
+
+            <!-- Remark -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="7dp"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Remark"
-                    android:layout_weight="0.3"
                     android:textColor="@color/black"
                     android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/etRemark"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:text=": NA"
-                    android:gravity="center|start"
-                    android:layout_weight="0.7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text=" N/A"
                     android:textStyle="bold"
                     android:textColor="@color/black"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="2dp" />
 
             </LinearLayout>
 

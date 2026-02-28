@@ -29,8 +29,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     var sharedPreferenceClass: SharedPreferenceClass? = null
+    var tvContact : TextView? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -41,9 +42,9 @@ class MainActivity : AppCompatActivity() {
         window.navigationBarColor = Color.BLACK
         val headerView = binding.navView.getHeaderView(0)
         val tvUserName = headerView.findViewById<TextView>(R.id.tvAgentName)
-        val tvContact = headerView.findViewById<TextView>(R.id.textViewContact)
-        tvUserName.text = "Name: " + sharedPreferenceClass!!.getValue_string("NAME")
-        tvContact.text = "Contact: " + sharedPreferenceClass!!.getValue_string("CONTACT")
+        tvContact = headerView.findViewById<TextView>(R.id.textViewContact)
+        tvUserName.text = "Logged in as: " + sharedPreferenceClass!!.getValue_string("NAME")
+        tvContact?.text = "Agent Name: " +  sharedPreferenceClass?.getValue_string("AGENT_NAME")
 
         val nameA = sharedPreferenceClass?.getValue_string("AGENT_NAME")
         if(nameA!!.isBlank() || nameA == "false" ){
@@ -139,6 +140,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 // your logic here
                 sharedPreferenceClass?.setValue_string("AGENT_NAME",remarkD)
+                tvContact?.text = "Agent Name: " +  remarkD
                 dialog.dismiss()
                 hideKeyboard()
             }
