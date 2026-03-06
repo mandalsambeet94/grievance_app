@@ -1222,19 +1222,9 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     if(statusCode == 401) {
                         val jsonObject = JSONObject(responseBody)
                         val message = jsonObject.optString("message")
-                        Toast.makeText(this@CreateGrievanceActivity, message, Toast.LENGTH_LONG).show();
+                        Toast.makeText(this@CreateGrievanceActivity, message, Toast.LENGTH_LONG).show()
                         Util.logoutAll(this@CreateGrievanceActivity)
                     }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
-                        val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
-                        val jsonObject = JSONObject(responseBody)
-                        val message = jsonObject.optString("message", "Something went wrong! please try after some time")
-                        val header = jsonObject.optString("error", "Authentication failed")
-                        showAlert(header,message)
-                    }else{
-                        showAlert("Server Error","Server Error!!! The grievance has been saved locally.")
-                        saveOfflineData("")
-                    }
-                    if (statusCode == 401 || statusCode == 402 || statusCode == 403 || statusCode == 404) {
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)
                         val message = jsonObject.optString("message", "Something went wrong! please try after some time")
