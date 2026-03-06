@@ -23,6 +23,7 @@ import com.supragyan.grievancems.R
 import com.supragyan.grievancems.databinding.ActivityMainBinding
 import com.supragyan.grievancems.databinding.AgentNameDialogBinding
 import com.supragyan.grievancems.utility.SharedPreferenceClass
+import com.supragyan.grievancems.utility.Util
 
 class MainActivity : AppCompatActivity() {
 
@@ -90,7 +91,6 @@ class MainActivity : AppCompatActivity() {
             }
             true
         })
-
     }
 
     private fun showLogout(){
@@ -100,10 +100,8 @@ class MainActivity : AppCompatActivity() {
             .setMessage("Are you sure you want to logout?")
             .setPositiveButton("Yes") { dialog, which ->
                 //db?.emptyBadgeTable()
-                sharedPreferenceClass!!.clearData()
-                startActivity(Intent(this@MainActivity, LoginActivity::class.java))
-                finishAffinity()
-
+                dialog.dismiss()
+                Util.logoutAll(this)
             }
             .setNegativeButton("No", null)
             .show()

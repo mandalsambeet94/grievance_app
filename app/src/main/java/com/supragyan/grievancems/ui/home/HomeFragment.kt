@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +26,7 @@ import com.supragyan.grievancems.ui.database.SQLiteDB
 import com.supragyan.grievancems.utility.SharedPreferenceClass
 import com.supragyan.grievancems.utility.Util
 import com.supragyan.grievancems.webservices.AppController
+import okhttp3.internal.UTC
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -105,14 +107,14 @@ class HomeFragment : Fragment() {
             progressDialog!!.show()
         }
         val tag = "user_login"
-        val jObj = JSONObject()
-        println("params are: $jObj")
+        //val jObj = JSONObject()
+        //println("params are: $jObj")
 
         val data: JsonObjectRequest = object : JsonObjectRequest(
             Method.GET,
             resources.getString(R.string.main_url) +
                     resources.getString(R.string.dashboard_url),
-            jObj,
+            null,
             Response.Listener<JSONObject> { response: JSONObject ->
                 if (progressDialog != null) {
                     progressDialog!!.dismiss()
@@ -143,7 +145,14 @@ class HomeFragment : Fragment() {
                 if ( response != null) {
                     val statusCode = error.networkResponse.statusCode
                     println("statusCode $statusCode")
-                    if (statusCode == 401 || statusCode == 402 || statusCode == 403 || statusCode == 404) {
+                    val responseBody = String(error.networkResponse.data, Charsets.UTF_8)
+                    println("VOLLEY_ERROR_BODY $responseBody")
+                    if(statusCode == 401) {
+                        val jsonObject = JSONObject(responseBody)
+                        val message = jsonObject.optString("message")
+                        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                        Util.logoutAll(requireActivity())
+                    }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)
                         val message = jsonObject.optString("message", "Something went wrong! please try after some time")

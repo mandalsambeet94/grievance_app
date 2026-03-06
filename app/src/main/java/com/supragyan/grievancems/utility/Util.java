@@ -1,10 +1,16 @@
 package com.supragyan.grievancems.utility;
 
+import static androidx.core.app.ActivityCompat.finishAffinity;
+
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.supragyan.grievancems.ui.LoginActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,5 +94,13 @@ public class Util {
             Toast.makeText(context, "No Network Connectivity", Toast.LENGTH_SHORT).show();
         }
         return haveConnectedWifi || haveConnectedMobile;
+    }
+
+    public static void logoutAll(Context context) {
+        SharedPreferenceClass sharedPreferenceClass= new SharedPreferenceClass(context);
+        sharedPreferenceClass.clearData();
+        Intent intent = new Intent(context, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
     }
 }

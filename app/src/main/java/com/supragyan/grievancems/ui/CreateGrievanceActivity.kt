@@ -1031,7 +1031,6 @@ class CreateGrievanceActivity: AppCompatActivity() {
             }
         }
 
-
     private val cameraLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
@@ -1059,7 +1058,6 @@ class CreateGrievanceActivity: AppCompatActivity() {
                 addFile(uri)
             }
         }
-
 
     private fun addImage(uri: Uri) {
         if (fileList.size >= 10) {
@@ -1219,7 +1217,23 @@ class CreateGrievanceActivity: AppCompatActivity() {
 
                 if ( response != null) {
                     val statusCode = error.networkResponse.statusCode
-
+                    val responseBody = String(error.networkResponse.data, Charsets.UTF_8)
+                    println("VOLLEY_ERROR_BODY $responseBody")
+                    if(statusCode == 401) {
+                        val jsonObject = JSONObject(responseBody)
+                        val message = jsonObject.optString("message")
+                        Toast.makeText(this@CreateGrievanceActivity, message, Toast.LENGTH_LONG).show();
+                        Util.logoutAll(this@CreateGrievanceActivity)
+                    }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
+                        val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
+                        val jsonObject = JSONObject(responseBody)
+                        val message = jsonObject.optString("message", "Something went wrong! please try after some time")
+                        val header = jsonObject.optString("error", "Authentication failed")
+                        showAlert(header,message)
+                    }else{
+                        showAlert("Server Error","Server Error!!! The grievance has been saved locally.")
+                        saveOfflineData("")
+                    }
                     if (statusCode == 401 || statusCode == 402 || statusCode == 403 || statusCode == 404) {
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)

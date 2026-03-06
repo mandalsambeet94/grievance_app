@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isNotEmpty
@@ -289,8 +290,14 @@ class OfflineDetailsActivity: AppCompatActivity() {
 
                 if ( response != null) {
                     val statusCode = error.networkResponse.statusCode
-
-                    if (statusCode == 401 || statusCode == 402 || statusCode == 403 || statusCode == 404) {
+                    val responseBody = String(error.networkResponse.data, Charsets.UTF_8)
+                    println("VOLLEY_ERROR_BODY $responseBody")
+                    if(statusCode == 401) {
+                        val jsonObject = JSONObject(responseBody)
+                        val message = jsonObject.optString("message")
+                        Toast.makeText(this@OfflineDetailsActivity, message, Toast.LENGTH_LONG).show();
+                        Util.logoutAll(this@OfflineDetailsActivity)
+                    }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)
                         val message = jsonObject.optString("message", "Something went wrong! please try after some time")
@@ -390,8 +397,14 @@ class OfflineDetailsActivity: AppCompatActivity() {
 
                 if ( response != null) {
                     val statusCode = error.networkResponse.statusCode
-
-                    if (statusCode == 401 || statusCode == 402 || statusCode == 403 || statusCode == 404) {
+                    val responseBody = String(error.networkResponse.data, Charsets.UTF_8)
+                    println("VOLLEY_ERROR_BODY $responseBody")
+                    if(statusCode == 401) {
+                        val jsonObject = JSONObject(responseBody)
+                        val message = jsonObject.optString("message")
+                        Toast.makeText(this@OfflineDetailsActivity, message, Toast.LENGTH_LONG).show();
+                        Util.logoutAll(this@OfflineDetailsActivity)
+                    }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)
                         val message = jsonObject.optString("message", "Something went wrong! please try after some time")
