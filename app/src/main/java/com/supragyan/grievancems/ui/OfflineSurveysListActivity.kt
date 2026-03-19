@@ -32,6 +32,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import com.android.volley.AuthFailureError
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request.Method
@@ -78,25 +79,54 @@ class OfflineSurveysListActivity: AppCompatActivity() {
 
         binding.btnSubmit.setOnClickListener{
             if(Util.isNetworkAvailable(this@OfflineSurveysListActivity)){
-                val userId = sharedPreferenceClass?.getValue_string("USERID")
-                val offlineCount = db.getAllGrievanceData(userId)
+                if (progressDialog != null) {
+                    progressDialog!!.show()
+                }
+                Util.isConnectionSlowAsync { isSlow ->
+                    if (isSlow) {
+                        if (progressDialog != null) {
+                            progressDialog!!.dismiss()
+                        }
+                        showAlert("Slow Network","Slow network connection detected. Sync failed due to a poor network connection. Please switch to a better network and try again.")
+                    } else {
+                        val userId = sharedPreferenceClass?.getValue_string("USERID")
+                        val offlineCount = db.getAllGrievanceData(userId)
 
-                if(offlineCount.size>0){
-                    val workRequest = OneTimeWorkRequestBuilder<SyncAllWorker>()
-                        .build()
+                        if(offlineCount.size>0){
+                            if (progressDialog != null) {
+                                progressDialog!!.dismiss()
+                            }
+                            val workRequest = OneTimeWorkRequestBuilder<SyncAllWorker>()
+                                .build()
 
-                    WorkManager.getInstance(this)
-                        .enqueueUniqueWork(
-                            "sync_work",
-                            ExistingWorkPolicy.KEEP,
-                            workRequest
-                        )
+                            WorkManager.getInstance(this)
+                                .enqueueUniqueWork(
+                                    "sync_work",
+                                    ExistingWorkPolicy.KEEP,
+                                    workRequest
+                                )
 
-                    observeWork(workRequest.id)
+                            observeWork(workRequest.id)
+                        }
+                    }
                 }
             }
         }
 
+    }
+
+    private fun showAlert(title:String, message:String) {
+        //capture.onPause();
+        val alert = AlertDialog.Builder(this@OfflineSurveysListActivity)
+        alert.setTitle(title)
+        alert.setCancelable(false)
+        alert.setMessage(message)
+        alert.setPositiveButton(
+            "Okay",
+            { dialog, _ -> //capture.onResume();
+                dialog.dismiss()
+            })
+        alert.show()
     }
 
     private fun observeWork(workId: UUID) {
@@ -155,10 +185,20 @@ class OfflineSurveysListActivity: AppCompatActivity() {
                 val userId = sharedPreferenceClass.getValue_string("USERID")
                 val db = SQLiteDB(applicationContext)
                 val offlineList = db.getAllGrievanceData(userId)
+                println("offlineList "+offlineList.size)
                 for (item in offlineList) {
                     // 1️⃣ Save grievance
-                    val grievanceId = repo.saveGrievance(item)
-                        ?: return Result.retry()
+                    var grievanceId = item.grievanceID
+                    var offId = item.offlineID
+                    println("gId $grievanceId")
+                    println("offId $offId")
+                    if(grievanceId.isNullOrBlank()){
+                        grievanceId = repo.saveGrievance(item)
+                            ?: return Result.retry()
+                        if(grievanceId.isNotBlank()){
+                            db.updateGrievanceId(item.offlineID,grievanceId)
+                        }
+                    }
 
                     // 2️⃣ If photos exist
                     if (!item.photos.isNullOrBlank()) {
@@ -166,30 +206,35 @@ class OfflineSurveysListActivity: AppCompatActivity() {
                         val uris = item.photos.split(",").map { it.toUri() }
 
                         val uploads = repo.getPresignedUrls(grievanceId, uris)
-                            ?: return Result.retry()
-
-                        for (i in 0 until uploads.length()) {
-
-                            val obj = uploads.getJSONObject(i)
-
-                            val presignedUrl = obj.getString("presignedUrl")
-                            val uploadId = obj.getString("uploadId")
-                            val fileName = obj.getString("fileName")
-
-                            val fileUri = uris.first {
-                                File(it.path!!).name == fileName
-                            }
-
-                            val uploaded = repo.uploadFileToS3(
-                                presignedUrl,
-                                fileUri,
-                                repo.getMimeType(fileUri)
+                            /*?: return Result.retry()*/
+                        if (uploads == null) {
+                            return Result.failure(
+                                workDataOf("error" to "Failed to fetch upload URLs. Please try again.")
                             )
+                        }else{
+                            for (i in 0 until uploads.length()) {
 
-                            if (!uploaded) return Result.retry()
+                                val obj = uploads.getJSONObject(i)
 
-                            val confirmed = repo.confirmUpload(uploadId)
-                            if (!confirmed) return Result.retry()
+                                val presignedUrl = obj.getString("presignedUrl")
+                                val uploadId = obj.getString("uploadId")
+                                val fileName = obj.getString("fileName")
+
+                                val fileUri = uris.first {
+                                    File(it.path!!).name == fileName
+                                }
+
+                                val uploaded = repo.uploadFileToS3(
+                                    presignedUrl,
+                                    fileUri,
+                                    repo.getMimeType(fileUri)
+                                )
+
+                                if (!uploaded) return Result.retry()
+
+                                val confirmed = repo.confirmUpload(uploadId)
+                                if (!confirmed) return Result.retry()
+                            }
                         }
                     }
                     // 3️⃣ Delete row

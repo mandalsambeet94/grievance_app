@@ -126,6 +126,61 @@ public class SQLiteDB {
         }
     }
 
+    /*public void updateGrievanceId(GrievanceModel model){
+        try{
+            SQLiteDatabase db = DBHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(OFFLINEID,model.getOfflineID());
+            values.put(USERID,model.getUserID());
+            values.put(BLOCK,model.getBlock());
+            values.put(GP,model.getGp());
+            values.put(VILLAGE,model.getVillage());
+            values.put(ADDRESS,model.getAddress());
+            values.put(WARD_NO,model.getWardNo());
+            values.put(NAME,model.getName());
+            values.put(FATHER_NAME,model.getFatherName());
+            values.put(CONTACT,model.getContact());
+            values.put(TOPIC,model.getTopic());
+            values.put(GRIEVANCE_MATTER,model.getGrievanceMatter());
+            values.put(REMARK,model.getRemark());
+            values.put(PHOTOS,model.getPhotos());
+            values.put(GRIEVANCE_ID,model.getGrievanceID());
+            values.put(UPLOAD_ID,model.getUploadID());
+            String whereClause = "offlineid = ?";
+            String[] whereArgs = new String[]{
+                    model.getOfflineID(),
+            };
+            db.update(TABLE_CREATE_GRIEVANCE, values, whereClause, whereArgs);
+            Log.d("TABLE_CREATE_GRIEVANCE", "Data updated");
+        }catch (Exception e){
+            Log.d("Exception", String.valueOf(e));
+        }
+    }*/
+
+    public void updateGrievanceId(String offlineId, String grievanceId) {
+        System.out.println("offlineId "+offlineId);
+        System.out.println("grievanceId "+grievanceId);
+        try {
+            SQLiteDatabase db = DBHelper.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+            values.put(GRIEVANCE_ID, grievanceId);
+
+            int rows = db.update(
+                    TABLE_CREATE_GRIEVANCE,
+                    values,
+                    OFFLINEID + "=?",
+                    new String[]{offlineId}
+            );
+
+            Log.d("UPDATE", "Rows updated: " + rows);
+
+            db.close();
+        } catch (Exception e) {
+            Log.d("Exception", String.valueOf(e));
+        }
+    }
+
     // get all offline sync data
     public ArrayList<GrievanceModel> getAllGrievanceData(String userId) {
         ArrayList<GrievanceModel> contactList = new ArrayList<GrievanceModel>();

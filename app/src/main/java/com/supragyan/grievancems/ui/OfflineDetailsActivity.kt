@@ -13,14 +13,12 @@ import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isNotEmpty
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.AuthFailureError
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.NetworkResponse
 import com.android.volley.Request
-import com.android.volley.Request.Method
 import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.HttpHeaderParser
@@ -28,7 +26,6 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.google.android.material.textfield.TextInputEditText
 import com.supragyan.grievancems.R
 import com.supragyan.grievancems.databinding.ActivityOfflineDetailsBinding
-import com.supragyan.grievancems.databinding.ItemTopicBinding
 import com.supragyan.grievancems.databinding.RowPhotosBinding
 import com.supragyan.grievancems.ui.database.GrievanceModel
 import com.supragyan.grievancems.ui.database.SQLiteDB
@@ -41,7 +38,6 @@ import org.json.JSONObject
 import java.io.File
 import java.nio.charset.StandardCharsets
 import kotlin.text.startsWith
-import androidx.core.net.toUri
 import com.supragyan.grievancems.ui.home.ViewImageActivity
 
 class OfflineDetailsActivity: AppCompatActivity() {
@@ -133,13 +129,27 @@ class OfflineDetailsActivity: AppCompatActivity() {
 
         binding.btnSubmit.setOnClickListener{
             if(Util.isNetworkAvailable(this@OfflineDetailsActivity)){
-                val gId = offlineData.grievanceID
-                if(!gId.isNullOrBlank()){
-                    syncPreSignedUrl(gId)
-                }else{
-                    saveGrievanceData(offlineData)
+                if (progressDialog != null) {
+                    progressDialog!!.show()
                 }
-
+                Util.isConnectionSlowAsync { isSlow ->
+                    if (isSlow) {
+                        if (progressDialog != null) {
+                            progressDialog!!.dismiss()
+                        }
+                        showAlert("Slow Network","Slow network connection detected. Sync failed due to a poor network connection. Please switch to a better network and try again.")
+                    } else {
+                        val gId = offlineData.grievanceID
+                        val ofId = offlineData.offlineID
+                        println("ofId $ofId")
+                        println("gId $gId")
+                        if(!gId.isNullOrBlank()){
+                            syncPreSignedUrl(gId, offlineData.offlineID)
+                        }else{
+                            saveGrievanceData(offlineData)
+                        }
+                    }
+                }
             }
         }
     }
@@ -225,9 +235,7 @@ class OfflineDetailsActivity: AppCompatActivity() {
     }
 
     private fun saveGrievanceData(offlineData: GrievanceModel) {
-        if (progressDialog != null) {
-            progressDialog!!.show()
-        }
+
         val tag = "user_save"
         val jObj = JSONObject()
         try {
@@ -273,7 +281,11 @@ class OfflineDetailsActivity: AppCompatActivity() {
                     println("list response is $response")
                     grievanceID = response.getString("grievanceId")
                     if(fileList.size>0){
-                        syncPreSignedUrl(grievanceID)
+                        if (progressDialog != null) {
+                            progressDialog!!.show()
+                        }
+
+                        syncPreSignedUrl(grievanceID, offlineData.offlineID)
                     }
                     //showAlert("Success", "New grievance created successfully")
 
@@ -336,7 +348,7 @@ class OfflineDetailsActivity: AppCompatActivity() {
             "Okay",
             { dialog, _ -> //capture.onResume();
                 dialog.dismiss()
-                if(title == "Success" || title == "No Network"){
+                if(title == "Success" || title == "No Network" || title == "Slow Network"){
                     finish()
                 }
 
@@ -344,10 +356,8 @@ class OfflineDetailsActivity: AppCompatActivity() {
         alert.show()
     }
 
-    private fun syncPreSignedUrl(gID: String) {
-        if (progressDialog != null) {
-            progressDialog!!.show()
-        }
+    private fun syncPreSignedUrl(gID: String, offlineID: String) {
+
         val tag = "pre_url"
         val jObj = JSONObject()
         val filesArray = JSONArray()
@@ -394,7 +404,7 @@ class OfflineDetailsActivity: AppCompatActivity() {
                 }
                 println("error $error")
                 val response = error.networkResponse
-
+                db.updateGrievanceId(offlineID,gID)
                 if ( response != null) {
                     val statusCode = error.networkResponse.statusCode
                     val responseBody = String(error.networkResponse.data, Charsets.UTF_8)

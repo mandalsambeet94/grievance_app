@@ -6,14 +6,22 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.supragyan.grievancems.ui.LoginActivity;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Util {
     public static HashMap<String,String> fgCodeIdMap;
@@ -76,24 +84,73 @@ public class Util {
     }
 
     public static boolean isNetworkAvailable(Context context) {
-        boolean haveConnectedWifi = false;
-        boolean haveConnectedMobile = false;
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo[] netInfo = cm.getAllNetworkInfo();
-        for (NetworkInfo ni : netInfo) {
-            if (ni.getTypeName().equalsIgnoreCase("WIFI"))
-                if (ni.isConnected())
-                    haveConnectedWifi = true;
-            if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
-                if (ni.isConnected())
-                    haveConnectedMobile = true;
+        if (cm != null) {
+            Network network = cm.getActiveNetwork();
+            if (network == null) return false;
+
+            NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+            return capabilities != null &&
+                    (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
         }
-        if (!(haveConnectedWifi || haveConnectedMobile)) {
-            //vibrate(300, context);
-            Toast.makeText(context, "No Network Connectivity", Toast.LENGTH_SHORT).show();
+        return false;
+    }
+
+    public static boolean isNetworkSlow() {
+        try {
+            long startTime = System.currentTimeMillis();
+
+            URL url = new URL("https://www.google.com");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(3000); // 3 sec timeout
+            connection.setReadTimeout(3000);
+            connection.setUseCaches(false);
+            connection.connect();
+
+            long endTime = System.currentTimeMillis();
+            long responseTime = endTime - startTime;
+
+            // 👉 Adjust this threshold as needed
+            return responseTime > 2000; // >2 sec = slow network
+
+        } catch (Exception e) {
+            // If error → treat as slow network
+            return true;
         }
-        return haveConnectedWifi || haveConnectedMobile;
+    }
+
+    public static void isConnectionSlowAsync(InternetCheckCallback callback) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            boolean isSlow;
+
+            try {
+                long startTime = System.currentTimeMillis();
+
+                URL url = new URL("https://www.google.com");
+                HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+                urlc.setConnectTimeout(3000);
+                urlc.connect();
+
+                long endTime = System.currentTimeMillis();
+                long duration = endTime - startTime;
+
+                isSlow = duration > 2000;
+            } catch (Exception e) {
+                isSlow = true;
+            }
+
+            boolean finalIsSlow = isSlow;
+
+            // Return result on main thread
+            handler.post(() -> callback.onResult(finalIsSlow));
+        });
     }
 
     public static void logoutAll(Context context) {

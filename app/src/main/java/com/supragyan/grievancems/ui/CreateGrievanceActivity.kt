@@ -954,7 +954,20 @@ class CreateGrievanceActivity: AppCompatActivity() {
             // Final check
             if (isValid) {
                 if (Util.isNetworkAvailable(this@CreateGrievanceActivity)) {
-                    saveGrievanceData()
+                    if (progressDialog != null) {
+                        progressDialog!!.show()
+                    }
+                    Util.isConnectionSlowAsync { isSlow ->
+                        if (isSlow) {
+                            if (progressDialog != null) {
+                                progressDialog!!.dismiss()
+                            }
+                            saveOfflineData("slow")
+                        } else {
+                            saveGrievanceData()
+                        }
+                    }
+
                 } else {
                     saveOfflineData("offline")
                 }
@@ -1014,8 +1027,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
                 .show()
         }
     }
-    private val galleryLauncher =
-        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
 
             if (uris.isEmpty()) return@registerForActivityResult
 
@@ -1146,9 +1158,6 @@ class CreateGrievanceActivity: AppCompatActivity() {
     }
 
     private fun saveGrievanceData() {
-        if (progressDialog != null) {
-            progressDialog!!.show()
-        }
         val tag = "user_save"
         val jObj = JSONObject()
         try {
@@ -1192,9 +1201,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     resources.getString(com.supragyan.grievancems.R.string.submit_grievance_url),
             jObj,
             Response.Listener<JSONObject> { response: JSONObject ->
-                /*if (progressDialog != null) {
-                    progressDialog!!.dismiss()
-                }*/
+
                 try {
                     println("list response is $response")
                     grievanceID = response.getString("grievanceId")
@@ -1205,6 +1212,9 @@ class CreateGrievanceActivity: AppCompatActivity() {
                         showAlert("Success", "New grievance created successfully")
                     }
                 } catch (e: JSONException) {
+                    if (progressDialog != null) {
+                    progressDialog!!.dismiss()
+                }
                     e.printStackTrace()
                 }
             },
@@ -1270,7 +1280,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
             "Okay",
             { dialog, _ -> //capture.onResume();
                 dialog.dismiss()
-                if(title == "Success" || title == "No Network"){
+                if(title == "Success" || title == "No Network" || title == "Slow Network"){
                     finish()
                 }
 
@@ -1306,6 +1316,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
         }
         println("offlinePathList $offlinePathList")
         val uniqueId = UUID.randomUUID().toString()
+        println("uniqueId $uniqueId")
         val model = GrievanceModel()
         model.offlineID = uniqueId
         model.userID = sharedPreferenceClass?.getValue_string("USERID")
@@ -1326,6 +1337,8 @@ class CreateGrievanceActivity: AppCompatActivity() {
         db.addGrievanceData(model)
         if(from == "offline"){
             showAlert("No Network","No network connection detected. The data has been saved locally.")
+        }else if(from == "slow"){
+            showAlert("Slow Network","Slow network connection detected. The data has been saved locally.")
         }
     }
 
@@ -1384,9 +1397,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
             jObj.put("grievanceId", gID)
             fileList.forEach { uri ->
                 val fileName = getFileName(uri)
-                val contentType =
-                    contentResolver.getType(uri) ?: "application/octet-stream"
-
+                val contentType = contentResolver.getType(uri) ?: "application/octet-stream"
                 val fileObj = JSONObject()
                 //fileObj.put("uploadId", "")
                 fileObj.put("fileName", fileName)
@@ -1424,10 +1435,9 @@ class CreateGrievanceActivity: AppCompatActivity() {
                 }
                 println("error $error")
                 val response = error.networkResponse
-
+                saveOfflineData("")
                 if ( response != null) {
                     val statusCode = error.networkResponse.statusCode
-
                     if (statusCode == 401 || statusCode == 402 || statusCode == 403 || statusCode == 404) {
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)
