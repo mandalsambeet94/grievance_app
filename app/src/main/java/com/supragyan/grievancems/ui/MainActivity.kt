@@ -22,6 +22,7 @@ import com.google.android.material.navigation.NavigationView
 import com.supragyan.grievancems.R
 import com.supragyan.grievancems.databinding.ActivityMainBinding
 import com.supragyan.grievancems.databinding.AgentNameDialogBinding
+import com.supragyan.grievancems.utility.LogoutManager
 import com.supragyan.grievancems.utility.SharedPreferenceClass
 import com.supragyan.grievancems.utility.Util
 
@@ -101,7 +102,10 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("Yes") { dialog, which ->
                 //db?.emptyBadgeTable()
                 dialog.dismiss()
-                Util.logoutAll(this)
+                //Util.logoutAll(this)
+                val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
+                        resources.getString(com.supragyan.grievancems.R.string.logout_url)
+                LogoutManager.callLogoutApi(this, logoutUrl)
             }
             .setNegativeButton("No", null)
             .show()

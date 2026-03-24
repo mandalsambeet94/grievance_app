@@ -35,6 +35,7 @@ import com.supragyan.grievancems.databinding.ItemTopicBinding
 import com.supragyan.grievancems.databinding.RowPhotosBinding
 import com.supragyan.grievancems.ui.database.GrievanceModel
 import com.supragyan.grievancems.ui.database.SQLiteDB
+import com.supragyan.grievancems.utility.LogoutManager
 import com.supragyan.grievancems.utility.SharedPreferenceClass
 import com.supragyan.grievancems.utility.Util
 import com.supragyan.grievancems.webservices.AppController
@@ -1233,7 +1234,10 @@ class CreateGrievanceActivity: AppCompatActivity() {
                         val jsonObject = JSONObject(responseBody)
                         val message = jsonObject.optString("message")
                         Toast.makeText(this@CreateGrievanceActivity, message, Toast.LENGTH_LONG).show()
-                        Util.logoutAll(this@CreateGrievanceActivity)
+                        //Util.logoutAll(this@CreateGrievanceActivity)
+                        val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
+                                resources.getString(com.supragyan.grievancems.R.string.logout_url)
+                        LogoutManager.callLogoutApi(this@CreateGrievanceActivity, logoutUrl)
                     }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)

@@ -23,6 +23,7 @@ import com.supragyan.grievancems.ui.CreateGrievanceActivity
 import com.supragyan.grievancems.ui.MainActivity
 import com.supragyan.grievancems.ui.OfflineSurveysListActivity
 import com.supragyan.grievancems.ui.database.SQLiteDB
+import com.supragyan.grievancems.utility.LogoutManager
 import com.supragyan.grievancems.utility.SharedPreferenceClass
 import com.supragyan.grievancems.utility.Util
 import com.supragyan.grievancems.webservices.AppController
@@ -33,11 +34,7 @@ import org.json.JSONObject
 import java.nio.charset.StandardCharsets
 
 class HomeFragment : Fragment() {
-
     private var _binding: FragmentHomeBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
     var i = 0
     private var recentActivityArr: JSONArray? = null
@@ -50,9 +47,6 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        /*val homeViewModel =
-            ViewModelProvider(this)[HomeViewModel::class.java]*/
-
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         progressDialog =  ProgressDialog(requireActivity())
@@ -60,11 +54,6 @@ class HomeFragment : Fragment() {
         progressDialog!!.setMessage("Loading Please wait")
         progressDialog!!.setCancelable(false)
         db = SQLiteDB(requireActivity())
-       /* val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }*/
-
 
         binding.llOffline.setOnClickListener {
             val userId = sharedPreferenceClass?.getValue_string("USERID")
@@ -107,8 +96,6 @@ class HomeFragment : Fragment() {
             progressDialog!!.show()
         }
         val tag = "user_login"
-        //val jObj = JSONObject()
-        //println("params are: $jObj")
 
         val data: JsonObjectRequest = object : JsonObjectRequest(
             Method.GET,
@@ -150,8 +137,11 @@ class HomeFragment : Fragment() {
                     if(statusCode == 401) {
                         val jsonObject = JSONObject(responseBody)
                         val message = jsonObject.optString("message")
-                        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-                        Util.logoutAll(requireActivity())
+                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                        //Util.logoutAll(requireActivity())
+                        val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
+                                resources.getString(com.supragyan.grievancems.R.string.logout_url)
+                        LogoutManager.callLogoutApi(requireActivity(), logoutUrl)
                     }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)

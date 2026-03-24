@@ -39,6 +39,7 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import kotlin.text.startsWith
 import com.supragyan.grievancems.ui.home.ViewImageActivity
+import com.supragyan.grievancems.utility.LogoutManager
 
 class OfflineDetailsActivity: AppCompatActivity() {
     private lateinit var binding: ActivityOfflineDetailsBinding
@@ -308,7 +309,10 @@ class OfflineDetailsActivity: AppCompatActivity() {
                         val jsonObject = JSONObject(responseBody)
                         val message = jsonObject.optString("message")
                         Toast.makeText(this@OfflineDetailsActivity, message, Toast.LENGTH_LONG).show();
-                        Util.logoutAll(this@OfflineDetailsActivity)
+                        //Util.logoutAll(this@OfflineDetailsActivity)
+                        val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
+                                resources.getString(com.supragyan.grievancems.R.string.logout_url)
+                        LogoutManager.callLogoutApi(this@OfflineDetailsActivity, logoutUrl)
                     }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)
@@ -413,7 +417,10 @@ class OfflineDetailsActivity: AppCompatActivity() {
                         val jsonObject = JSONObject(responseBody)
                         val message = jsonObject.optString("message")
                         Toast.makeText(this@OfflineDetailsActivity, message, Toast.LENGTH_LONG).show();
-                        Util.logoutAll(this@OfflineDetailsActivity)
+                        //Util.logoutAll(this@OfflineDetailsActivity)
+                        val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
+                                resources.getString(com.supragyan.grievancems.R.string.logout_url)
+                        LogoutManager.callLogoutApi(this@OfflineDetailsActivity, logoutUrl)
                     }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)
