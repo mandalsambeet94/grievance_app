@@ -1237,7 +1237,8 @@ class CreateGrievanceActivity: AppCompatActivity() {
                         //Util.logoutAll(this@CreateGrievanceActivity)
                         val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
                                 resources.getString(com.supragyan.grievancems.R.string.logout_url)
-                        LogoutManager.callLogoutApi(this@CreateGrievanceActivity, logoutUrl)
+                        val token = sharedPreferenceClass?.getValue_string("TOKEN")
+                        LogoutManager.callLogoutApi(this@CreateGrievanceActivity, logoutUrl,token!!)
                     }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)

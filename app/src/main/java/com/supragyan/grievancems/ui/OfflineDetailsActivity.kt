@@ -312,7 +312,8 @@ class OfflineDetailsActivity: AppCompatActivity() {
                         //Util.logoutAll(this@OfflineDetailsActivity)
                         val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
                                 resources.getString(com.supragyan.grievancems.R.string.logout_url)
-                        LogoutManager.callLogoutApi(this@OfflineDetailsActivity, logoutUrl)
+                        val token = sharedPreferenceClass?.getValue_string("TOKEN")
+                        LogoutManager.callLogoutApi(this@OfflineDetailsActivity, logoutUrl, token!!)
                     }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)
@@ -420,7 +421,8 @@ class OfflineDetailsActivity: AppCompatActivity() {
                         //Util.logoutAll(this@OfflineDetailsActivity)
                         val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
                                 resources.getString(com.supragyan.grievancems.R.string.logout_url)
-                        LogoutManager.callLogoutApi(this@OfflineDetailsActivity, logoutUrl)
+                        val token = sharedPreferenceClass?.getValue_string("TOKEN")
+                        LogoutManager.callLogoutApi(this@OfflineDetailsActivity, logoutUrl,token!!)
                     }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)

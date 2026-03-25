@@ -141,7 +141,8 @@ class HomeFragment : Fragment() {
                         //Util.logoutAll(requireActivity())
                         val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
                                 resources.getString(com.supragyan.grievancems.R.string.logout_url)
-                        LogoutManager.callLogoutApi(requireActivity(), logoutUrl)
+                        val token = sharedPreferenceClass?.getValue_string("TOKEN")
+                        LogoutManager.callLogoutApi(requireActivity(), logoutUrl,token!!)
                     }else if(statusCode == 402 || statusCode == 403 || statusCode == 404){
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)

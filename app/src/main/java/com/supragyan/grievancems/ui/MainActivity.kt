@@ -105,7 +105,8 @@ class MainActivity : AppCompatActivity() {
                 //Util.logoutAll(this)
                 val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
                         resources.getString(com.supragyan.grievancems.R.string.logout_url)
-                LogoutManager.callLogoutApi(this, logoutUrl)
+                val token = sharedPreferenceClass?.getValue_string("TOKEN")
+                LogoutManager.callLogoutApi(this, logoutUrl,token!!)
             }
             .setNegativeButton("No", null)
             .show()

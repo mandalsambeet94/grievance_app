@@ -12,19 +12,28 @@ object LogoutManager {
 
     private var isLoggingOut = false
 
-    fun callLogoutApi(context: Context, url: String) {
+    fun callLogoutApi(context: Context, url: String, token: String) {
         if (isLoggingOut) return
         isLoggingOut = true
 
         val request = object : StringRequest(Method.POST, url,
             Response.Listener {
+                println("success logout")
                 clearSession(context)
             },
             Response.ErrorListener {
                 //clearSession(context)
                 println("error")
             }
-        ) {}
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $token"
+                headers["Accept"] = "application/json"
+
+                return headers
+            }
+        }
 
         Volley.newRequestQueue(context).add(request)
     }
