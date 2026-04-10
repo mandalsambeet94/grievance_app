@@ -58,7 +58,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
     var wardData = ""
     var grievanceID = ""
     var uploadID = ""
-    private var progressDialog: ProgressDialog? = null
+    //private var progressDialog: ProgressDialog? = null
     var sharedPreferenceClass: SharedPreferenceClass? = null
     val fileList = mutableListOf<Uri>()
     val uploadIdList = mutableListOf<String>()
@@ -74,10 +74,10 @@ class CreateGrievanceActivity: AppCompatActivity() {
         window.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         )
-        progressDialog = ProgressDialog(this@CreateGrievanceActivity)
+        //progressDialog = ProgressDialog(this@CreateGrievanceActivity)
         sharedPreferenceClass = SharedPreferenceClass(this@CreateGrievanceActivity)
-        progressDialog!!.setMessage("Loading Please wait")
-        progressDialog!!.setCancelable(false)
+        //progressDialog!!.setMessage("Loading Please wait")
+        //progressDialog!!.setCancelable(false)
         db = SQLiteDB(this)
         binding.toolbar.toolbarTitle.text = "NEW GRIEVANCE"
         binding.toolbar.ivBack.setOnClickListener {
@@ -955,14 +955,16 @@ class CreateGrievanceActivity: AppCompatActivity() {
             // Final check
             if (isValid) {
                 if (Util.isNetworkAvailable(this@CreateGrievanceActivity)) {
-                    if (progressDialog != null) {
+                    /*if (progressDialog != null) {
                         progressDialog!!.show()
-                    }
+                    }*/
+                    disableScreen()
                     Util.isConnectionSlowAsync { isSlow ->
                         if (isSlow) {
-                            if (progressDialog != null) {
+                            /*if (progressDialog != null) {
                                 progressDialog!!.dismiss()
-                            }
+                            }*/
+                            enableScreen()
                             saveOfflineData("slow")
                         } else {
                             saveGrievanceData()
@@ -1209,20 +1211,23 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     if(fileList.size>0){
                         syncPreSignedUrl(grievanceID)
                     }else{
-                        progressDialog?.dismiss()
+                        //progressDialog?.dismiss()
+                        enableScreen()
                         showAlert("Success", "New grievance created successfully")
                     }
                 } catch (e: JSONException) {
-                    if (progressDialog != null) {
-                    progressDialog!!.dismiss()
-                }
+                    /*if (progressDialog != null) {
+                        progressDialog!!.dismiss()
+                    }*/
+                    enableScreen()
                     e.printStackTrace()
                 }
             },
             Response.ErrorListener { error: VolleyError ->
-                if (progressDialog != null) {
+                /*if (progressDialog != null) {
                     progressDialog!!.dismiss()
-                }
+                }*/
+                enableScreen()
                 println("error $error")
                 val response = error.networkResponse
 
@@ -1392,9 +1397,9 @@ class CreateGrievanceActivity: AppCompatActivity() {
     }
 
     private fun syncPreSignedUrl(gID: String) {
-        if (progressDialog != null) {
+        /*if (progressDialog != null) {
             progressDialog!!.show()
-        }
+        }*/
         val tag = "pre_url"
         val jObj = JSONObject()
         val filesArray = JSONArray()
@@ -1431,13 +1436,15 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     handlePresignedResponse(response)
 
                 } catch (e: JSONException) {
+
                     e.printStackTrace()
                 }
             },
             Response.ErrorListener { error: VolleyError ->
-                if (progressDialog != null) {
+                /*if (progressDialog != null) {
                     progressDialog!!.dismiss()
-                }
+                }*/
+                enableScreen()
                 println("error $error")
                 val response = error.networkResponse
                 saveOfflineData("")
@@ -1495,6 +1502,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
             }
 
             if (fileUri == null) {
+                enableScreen()
                 showAlert("Error", "File not found: $fileNameFromServer")
                 return
             }
@@ -1512,15 +1520,17 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     uploadedCount++
                     syncConfirmAPI(uploadIDD)
                     if (uploadedCount == totalFiles) {
-                        progressDialog?.dismiss()
+                        //progressDialog?.dismiss()
+                        enableScreen()
                         showAlert("Success", "All files uploaded successfully")
                     }
                 },
                 onError = { error ->
                     println("❌ Upload failed: $error")
-                    if (progressDialog != null) {
+                    /*if (progressDialog != null) {
                         progressDialog!!.dismiss()
-                    }
+                    }*/
+                    enableScreen()
                     showAlert("Upload Failed", error)
                 }
             )
@@ -1543,9 +1553,9 @@ class CreateGrievanceActivity: AppCompatActivity() {
 
         val fileBytes = inputStream.readBytes()
         inputStream.close()
-        if (progressDialog != null) {
+        /*if (progressDialog != null) {
             progressDialog!!.show()
-        }
+        }*/
         val request = object : Request<NetworkResponse>(
             Method.PUT,
             presignedUrl,
@@ -1609,9 +1619,9 @@ class CreateGrievanceActivity: AppCompatActivity() {
                     resources.getString(com.supragyan.grievancems.R.string.confirm_url) + uploadIDD,
             jObj,
             Response.Listener<JSONObject> { response: JSONObject ->
-                if (progressDialog != null) {
+                /*if (progressDialog != null) {
                     progressDialog!!.dismiss()
-                }
+                }*/
                 try {
                     println("list response is $response")
 
@@ -1620,14 +1630,25 @@ class CreateGrievanceActivity: AppCompatActivity() {
                 }
             },
             Response.ErrorListener { error: VolleyError ->
-                if (progressDialog != null) {
+                /*if (progressDialog != null) {
                     progressDialog!!.dismiss()
-                }
+                }*/
+                enableScreen()
                 println("error $error")
                 val response = error.networkResponse
                 if ( response != null) {
                     val statusCode = error.networkResponse.statusCode
-                    if (statusCode == 401 || statusCode == 402 || statusCode == 403 || statusCode == 404) {
+                    val responseBody = String(error.networkResponse.data, Charsets.UTF_8)
+                    if(statusCode == 401) {
+                        val jsonObject = JSONObject(responseBody)
+                        val message = jsonObject.optString("message")
+                        Toast.makeText(this@CreateGrievanceActivity, message, Toast.LENGTH_LONG).show()
+                        //Util.logoutAll(requireActivity())
+                        val logoutUrl = resources.getString(com.supragyan.grievancems.R.string.main_url) +
+                                resources.getString(com.supragyan.grievancems.R.string.logout_url)
+                        val token = sharedPreferenceClass?.getValue_string("TOKEN")
+                        LogoutManager.callLogoutApi(this@CreateGrievanceActivity, logoutUrl,token!!)
+                    }else if (statusCode == 402 || statusCode == 403 || statusCode == 404) {
                         val responseBody = String(error.networkResponse.data, StandardCharsets.UTF_8)
                         val jsonObject = JSONObject(responseBody)
                         val message = jsonObject.optString("message", "Something went wrong! please try after some time")
@@ -1652,5 +1673,17 @@ class CreateGrievanceActivity: AppCompatActivity() {
 
         data.retryPolicy = DefaultRetryPolicy(30000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
         AppController.getInstance().requestQueue.add(data).addMarker(tag)
+    }
+
+    private fun disableScreen() {
+        binding.fullScreenLoader.visibility = View.VISIBLE
+        binding.nestedScrollView.visibility = View.GONE
+        binding.toolbar.ivBack.isEnabled = false
+    }
+
+    private fun enableScreen() {
+        binding.fullScreenLoader.visibility = View.GONE
+        binding.nestedScrollView.visibility = View.VISIBLE
+        binding.toolbar.ivBack.isEnabled = true
     }
 }

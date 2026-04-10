@@ -6,6 +6,33 @@
     android:layout_height="match_parent"
     android:background="@color/disabled">
 
+    <LinearLayout
+        android:id="@+id/fullScreenLoader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ProgressBar
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading Please Wait"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
     <include layout="@layout/toolbar"
         android:id="@+id/toolbar"/>
 
@@ -16,6 +43,7 @@
         android:fillViewport="true"
         android:fitsSystemWindows="true"
         android:scrollbars="none"
+        android:visibility="visible"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toBottomOf="parent">
 

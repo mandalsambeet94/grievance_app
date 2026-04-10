@@ -22,8 +22,8 @@ object LogoutManager {
                 clearSession(context)
             },
             Response.ErrorListener {
-                //clearSession(context)
-                println("error")
+                clearSession(context)
+                //println("error")
             }
         ) {
             override fun getHeaders(): MutableMap<String, String> {
