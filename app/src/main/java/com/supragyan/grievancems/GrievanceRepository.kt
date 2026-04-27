@@ -39,6 +39,7 @@ class GrievanceRepository(private val context: Context) {
                 json.put("grievanceDetails", data.grievanceMatter)
                 json.put("agentName", sharedPref.getValue_string("AGENT_NAME"))
                 json.put("agentRemarks", data.remark)
+                json.put("idempotencyKey", data.offlineID)
             } catch (e: Exception) {
                 continuation.resume(null)
             }

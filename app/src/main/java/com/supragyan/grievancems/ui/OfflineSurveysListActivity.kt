@@ -408,21 +408,21 @@ class OfflineSurveysListActivity: AppCompatActivity() {
             alert.setCancelable(false)
             alert.setMessage("Are you sure you want to delete offline grievance survey?")
             alert.setPositiveButton(
-                "Yes",
-                { dialog, _ -> //capture.onResume();
-                    dialog.dismiss()
-                    activity.db.deleteRow(offId)
-                    notesList.removeAt(position)
+                "Yes"
+            ) { dialog, _ -> //capture.onResume();
+                dialog.dismiss()
+                activity.db.deleteRow(offId)
+                notesList.removeAt(position)
 
-                    // Notify adapter properly
-                    notifyItemRemoved(position)
-                    notifyItemRangeChanged(position, notesList.size)
+                // Notify adapter properly
+                notifyItemRemoved(position)
+                notifyItemRangeChanged(position, notesList.size)
 
-                    if (notesList.isEmpty()) {
-                        activity.binding.tvNoData.visibility = View.VISIBLE
-                    }
+                if (notesList.isEmpty()) {
+                    activity.binding.tvNoData.visibility = View.VISIBLE
+                }
 
-                })
+            }
             alert.setNegativeButton("No",{dialog, which ->
                 dialog.dismiss()
             })
@@ -461,6 +461,7 @@ class OfflineSurveysListActivity: AppCompatActivity() {
             jObj.put("grievanceDetails", offlineData.grievanceMatter)
             jObj.put("agentName", sharedPreferenceClass?.getValue_string("AGENT_NAME"))
             jObj.put("agentRemarks", offlineData.remark)
+            jObj.put("idempotencyKey", offlineData.offlineID)
         } catch (e: JSONException) {
             e.printStackTrace()
         }

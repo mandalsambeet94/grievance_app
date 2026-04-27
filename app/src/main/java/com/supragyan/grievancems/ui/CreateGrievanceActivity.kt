@@ -58,6 +58,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
     var wardData = ""
     var grievanceID = ""
     var uploadID = ""
+    var idempotencyKey = ""
     //private var progressDialog: ProgressDialog? = null
     var sharedPreferenceClass: SharedPreferenceClass? = null
     val fileList = mutableListOf<Uri>()
@@ -83,6 +84,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
         binding.toolbar.ivBack.setOnClickListener {
             finish()
         }
+        idempotencyKey = UUID.randomUUID().toString()
         val grievanceTypes = listOf("ATHGARH", "TIGIRIA", "Tangi Chowdwar", "Athagarh NAC")
         val wordNoTypes = listOf("","1", "2", "3", "4","5", "6", "7", "8","9", "10", "11", "12","13", "14", "15", "16","17", "18", "19", "20","21", "22", "23", "24","25", "26", "27", "28","29", "30")
         val wordNoTypesNac = listOf("","1", "2", "3", "4","5", "6", "7", "8","9", "10", "11", "12","13", "14", "15", "16","17", "18")
@@ -1193,6 +1195,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
             jObj.put("grievanceDetails", binding.etGrievanceMatter.text.toString().trim())
             jObj.put("agentName", sharedPreferenceClass?.getValue_string("AGENT_NAME"))
             jObj.put("agentRemarks", binding.etRemark.text.toString().trim())
+            jObj.put("idempotencyKey", idempotencyKey)
         } catch (e: JSONException) {
             e.printStackTrace()
         }
@@ -1325,10 +1328,10 @@ class CreateGrievanceActivity: AppCompatActivity() {
             }
         }
         println("offlinePathList $offlinePathList")
-        val uniqueId = UUID.randomUUID().toString()
-        println("uniqueId $uniqueId")
+
+        println("uniqueId $idempotencyKey")
         val model = GrievanceModel()
-        model.offlineID = uniqueId
+        model.offlineID = idempotencyKey
         model.userID = sharedPreferenceClass?.getValue_string("USERID")
         model.block = blockData
         model.gp = gpData
@@ -1592,7 +1595,7 @@ class CreateGrievanceActivity: AppCompatActivity() {
 
         request.retryPolicy = DefaultRetryPolicy(
             60000,
-            0,
+            3,
             DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
 
@@ -1670,7 +1673,6 @@ class CreateGrievanceActivity: AppCompatActivity() {
                 return headers
             }
         }
-
         data.retryPolicy = DefaultRetryPolicy(30000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
         AppController.getInstance().requestQueue.add(data).addMarker(tag)
     }

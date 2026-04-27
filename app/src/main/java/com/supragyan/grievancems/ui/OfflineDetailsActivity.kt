@@ -264,6 +264,7 @@ class OfflineDetailsActivity: AppCompatActivity() {
             jObj.put("grievanceDetails", offlineData.grievanceMatter)
             jObj.put("agentName", sharedPreferenceClass?.getValue_string("AGENT_NAME"))
             jObj.put("agentRemarks", offlineData.remark)
+            jObj.put("idempotencyKey", offlineData.offlineID)
         } catch (e: JSONException) {
             e.printStackTrace()
         }
