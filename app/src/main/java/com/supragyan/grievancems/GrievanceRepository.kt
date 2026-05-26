@@ -4,6 +4,11 @@ import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import com.android.volley.DefaultRetryPolicy
+import com.android.volley.NetworkResponse
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.HttpHeaderParser
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.supragyan.grievancems.ui.database.GrievanceModel
@@ -117,7 +122,7 @@ class GrievanceRepository(private val context: Context) {
     // =========================================================
     // 3️⃣ UPLOAD FILE TO S3
     // =========================================================
-    suspend fun uploadFileToS3(
+    /*suspend fun uploadFileToS3(
         presignedUrl: String,
         fileUri: Uri,
         contentType: String
@@ -147,6 +152,88 @@ class GrievanceRepository(private val context: Context) {
         } catch (e: Exception) {
             continuation.resume(false)
         }
+    }*/
+
+    suspend fun uploadFileToS3(
+        presignedUrl: String,
+        fileUri: Uri,
+        contentType: String
+    ): Boolean = suspendCancellableCoroutine { continuation ->
+
+        try {
+
+            val file = File(fileUri.path!!)
+            val bytes = file.readBytes()
+
+            println("Uploading file -> ${file.name}")
+            println("File size -> ${bytes.size}")
+
+            val request = object : Request<NetworkResponse>(
+                Method.PUT,
+                presignedUrl,
+                Response.ErrorListener { error ->
+
+                    println("S3 upload error -> ${error.message}")
+
+                    if (continuation.isActive) {
+                        continuation.resume(false)
+                    }
+                }
+            ) {
+
+                override fun getBody(): ByteArray {
+                    return bytes
+                }
+
+                override fun getBodyContentType(): String {
+                    return contentType
+                }
+
+                override fun parseNetworkResponse(response: NetworkResponse): Response<NetworkResponse> {
+
+                    return if (response.statusCode in 200..299) {
+
+                        Response.success(
+                            response,
+                            HttpHeaderParser.parseCacheHeaders(response)
+                        )
+
+                    } else {
+
+                        Response.error(
+                            VolleyError("Upload failed with code ${response.statusCode}")
+                        )
+                    }
+                }
+
+                override fun deliverResponse(response: NetworkResponse) {
+
+                    println("S3 upload success")
+
+                    if (continuation.isActive) {
+                        continuation.resume(true)
+                    }
+                }
+            }
+
+            request.retryPolicy = DefaultRetryPolicy(
+                60000,
+                0,
+                1f
+            )
+
+            request.setShouldCache(false)
+
+            requestQueue.add(request)
+
+        } catch (e: Exception) {
+
+            e.printStackTrace()
+
+            if (continuation.isActive) {
+                continuation.resume(false)
+            }
+        }
     }
 
     // =========================================================
@@ -156,12 +243,12 @@ class GrievanceRepository(private val context: Context) {
         suspendCancellableCoroutine { continuation ->
 
             val json = JSONObject()
-            json.put("uploadId", uploadId)
-
+            //json.put("uploadId", uploadId)
+            println("json $json")
             val request = object : JsonObjectRequest(
                 Method.POST,
                 context.getString(R.string.main_url) +
-                        context.getString(R.string.confirm_url),
+                        context.getString(R.string.confirm_url)+uploadId,
                 json,
                 { continuation.resume(true) },
                 { continuation.resume(false) }

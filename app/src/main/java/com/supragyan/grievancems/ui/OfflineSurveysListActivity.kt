@@ -93,9 +93,12 @@ class OfflineSurveysListActivity: AppCompatActivity() {
                         val offlineCount = db.getAllGrievanceData(userId)
 
                         if(offlineCount.size>0){
+                            binding.btnSubmit.isEnabled = false
                             if (progressDialog != null) {
                                 progressDialog!!.dismiss()
                             }
+                            // Disable button immediately
+
                             val workRequest = OneTimeWorkRequestBuilder<SyncAllWorker>()
                                 .build()
 
@@ -203,8 +206,17 @@ class OfflineSurveysListActivity: AppCompatActivity() {
                     // 2️⃣ If photos exist
                     if (!item.photos.isNullOrBlank()) {
 
-                        val uris = item.photos.split(",").map { it.toUri() }
+                        //val uris = item.photos.split(",").map { it.toUri() }
 
+                        val uris = item.photos
+                            .split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() }
+                            .distinct()
+                            .map { it.toUri() }
+
+                        println("Photos -> ${item.photos}")
+                        println("uris size -> ${uris.size}")
                         val uploads = repo.getPresignedUrls(grievanceId, uris)
                             /*?: return Result.retry()*/
                         if (uploads == null) {
@@ -212,7 +224,7 @@ class OfflineSurveysListActivity: AppCompatActivity() {
                                 workDataOf("error" to "Failed to fetch upload URLs. Please try again.")
                             )
                         }else{
-                            for (i in 0 until uploads.length()) {
+                            /*for (i in 0 until uploads.length()) {
 
                                 val obj = uploads.getJSONObject(i)
 
@@ -234,6 +246,37 @@ class OfflineSurveysListActivity: AppCompatActivity() {
 
                                 val confirmed = repo.confirmUpload(uploadId)
                                 if (!confirmed) return Result.retry()
+                            }*/
+                            println("uploads -> ${uploads.length()}")
+                            println("uploads -> $uploads")
+                            for (i in 0 until uploads.length()) {
+
+                                val obj = uploads.getJSONObject(i)
+
+                                val presignedUrl = obj.getString("presignedUrl")
+                                val uploadId = obj.getString("uploadId")
+                                println("presignedUrl -> $presignedUrl")
+                                println("uploadId -> $uploadId")
+                                // Use same index
+                                val fileUri = uris[i]
+
+                                println("Uploading -> ${fileUri.path}")
+
+                                val uploaded = repo.uploadFileToS3(
+                                    presignedUrl,
+                                    fileUri,
+                                    repo.getMimeType(fileUri)
+                                )
+
+                                if (!uploaded) {
+                                    return Result.retry()
+                                }
+
+                                val confirmed = repo.confirmUpload(uploadId)
+
+                                if (!confirmed) {
+                                    return Result.retry()
+                                }
                             }
                         }
                     }
